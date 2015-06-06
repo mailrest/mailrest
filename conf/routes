@@ -3,7 +3,16 @@
 # ~~~~
 
 # Home page
-GET     /                           controllers.Application.index
+GET     /                             controllers.Application.index
+
+# Accounts
+
+
+# Domains
+#POST    /domains                      controllers.DomainController.createNew
+#GET     /domains/:id                  controllers.DomainController.findById(id: String)
+#PUT     /domains/:id                  controllers.DomainController.update(id: String)
+#DELETE  /domains/:id                  controllers.DomainController.delete(id: String)
 
 # Map static resources from the /public folder to the /assets URL path
-GET     /assets/*file               controllers.Assets.at(path="/public", file)
+GET     /assets/*file                 controllers.Assets.at(path="/public", file)
