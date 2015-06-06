@@ -10,14 +10,29 @@ import com.noorq.casser.core.Casser
 import scaldi.Injectable
 import scaldi.Injector
 import com.mailrest.maildal.repository.AccountRepository
+import com.mailrest.maildal.repository.AccountDomainRepository
+import com.mailrest.maildal.repository.AccountLogRepository
+import com.mailrest.maildal.model.AccountUser
+import scala.concurrent.Future
+import scala.concurrent.ExecutionContext
 
 trait AccountService {
 
+  def createAccount(organization: String, team: String, timezone: String): Future[String]
   
 }
 
-class AccountServiceImpl(implicit inj: Injector) extends AccountService with Injectable {
+class AccountServiceImpl(implicit inj: Injector, xc: ExecutionContext = ExecutionContext.global) extends AccountService with Injectable {
  
   val accountRepository = inject [AccountRepository]
+  val accountDomainRepository = inject [AccountDomainRepository]
+  val accountLogRepository = inject [AccountLogRepository]
+  
+  def createAccount(organization: String, team: String, timezone: String): Future[String] = {
+    
+    accountRepository.createAccount(organization, team, timezone).map(t => t._2);
+    
+  }
+    
   
 }

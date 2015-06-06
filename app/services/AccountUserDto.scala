@@ -6,6 +6,6 @@ package services
 
 import com.mailrest.maildal.model.AccountUser
 
-case class AccountUserDto(email: String, firstName: String, lastName: String) extends AccountUser {
+case class AccountUserDto(email: String, firstName: String, lastName: String, confirmed: Boolean) extends AccountUser {
   
 }
