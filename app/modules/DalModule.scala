@@ -58,10 +58,10 @@ class DalModule extends Module {
   
   val appConf = ConfigFactory.load()
   
-  val cassandraHost = appConf.getString("cassandra.host")
-  //val cassandraHost = inject [String]  ("cassandra.host")
+  //val cassandraHost = appConf.getString("cassandra.host")
+  lazy val cassandraHost = inject [String]  ("cassandra.host")
   val cassandraKeyspace = appConf.getString("cassandra.keyspace")
   
-  val dalConf = new MailDalConfig(cassandraHost, cassandraKeyspace)
+  lazy val dalConf = new MailDalConfig(cassandraHost, cassandraKeyspace)
   
 }

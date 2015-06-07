@@ -4,6 +4,9 @@
  */
 package controllers
 
+import play.api.data._
+import play.api.data.Forms._
+
 import scala.concurrent.ExecutionContext
 import play.api.mvc.Action
 import play.api.mvc.Controller
@@ -17,11 +20,26 @@ class AccountController(implicit inj: Injector) extends Controller with Injectab
 
   val accountService = inject [AccountService]
   
-  def createAccount = Action.async {
+  val newAccountForm = Form(
+    mapping(
+      "organization" -> nonEmptyText,
+      "team" -> text,
+      "timezone" -> text
+     )(NewAccountForm.apply)(NewAccountForm.unapply)
+  )
+  
+  def createAccount = Action.async { 
+    implicit request => {
     
-    var future = accountService.createAccount("organization", "team", "timezone");
-    
-    future.map(id => Ok("Created account: " + id))
+      val newAccount = newAccountForm.bindFromRequest.get
+      
+      var future = accountService.createAccount(newAccount.organization, newAccount.team, newAccount.timezone);
+      
+      future.map(id => Ok("Created account: " + id))
+    }
   }
 
+}
+
+case class NewAccountForm(organization: String, team: String, timezone:String) {
 }
