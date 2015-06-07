@@ -6,7 +6,7 @@
 GET     /                             controllers.Application.index
 
 # Accounts
-
+#POST    /api/v1/accounts              controllers.AccountController.createAccount
 
 # Domains
 #POST    /domains                      controllers.DomainController.createNew

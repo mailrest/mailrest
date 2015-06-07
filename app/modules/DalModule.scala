@@ -4,54 +4,63 @@
  */
 package modules
 
-import scaldi._
-import com.mailrest.maildal.repository.AccountRepository
+import scala.reflect.runtime.universe
 import com.mailrest.maildal.config.MailDalConfig
 import com.mailrest.maildal.config.RepositoryConfig
 import com.mailrest.maildal.repository.AccountDomainRepository
 import com.mailrest.maildal.repository.AccountLogRepository
+import com.mailrest.maildal.repository.AccountRepository
 import com.mailrest.maildal.repository.CookieRepository
-import com.mailrest.maildal.repository.UserRepository
-import com.mailrest.maildal.repository.UserLinkRepository
 import com.mailrest.maildal.repository.DomainOwnerRepository
 import com.mailrest.maildal.repository.DomainRepository
-import com.mailrest.maildal.repository.MessageRepository
-import com.mailrest.maildal.repository.TemplateRepository
-import com.mailrest.maildal.repository.MessageQueueRepository
 import com.mailrest.maildal.repository.MessageLogRepository
+import com.mailrest.maildal.repository.MessageQueueRepository
+import com.mailrest.maildal.repository.MessageRepository
 import com.mailrest.maildal.repository.MessageStatsDailyRepository
+import com.mailrest.maildal.repository.TemplateRepository
 import com.mailrest.maildal.repository.UnsubscribedRecipientRepository
+import com.mailrest.maildal.repository.UserLinkRepository
+import com.mailrest.maildal.repository.UserRepository
+import scaldi.Injectable
+import scaldi.Module
+import scaldi.Injector
+import play.api.Application
+import com.typesafe.config.ConfigFactory
+import com.typesafe.config.Config
+
 
 class DalModule extends Module {
   
   // Account
   
-  bind [AccountRepository] to new RepositoryConfig(conf) with AccountRepository
-  bind [AccountDomainRepository] to new RepositoryConfig(conf) with AccountDomainRepository
-  bind [AccountLogRepository] to new RepositoryConfig(conf) with AccountLogRepository
-  bind [CookieRepository] to new RepositoryConfig(conf) with CookieRepository  
-  bind [UserRepository] to new RepositoryConfig(conf) with UserRepository  
-  bind [UserLinkRepository] to new RepositoryConfig(conf) with UserLinkRepository  
+  bind [AccountRepository] to new RepositoryConfig(dalConf) with AccountRepository
+  bind [AccountDomainRepository] to new RepositoryConfig(dalConf) with AccountDomainRepository
+  bind [AccountLogRepository] to new RepositoryConfig(dalConf) with AccountLogRepository
+  bind [CookieRepository] to new RepositoryConfig(dalConf) with CookieRepository  
+  bind [UserRepository] to new RepositoryConfig(dalConf) with UserRepository  
+  bind [UserLinkRepository] to new RepositoryConfig(dalConf) with UserLinkRepository  
   
   // Domain
 
-  bind [DomainRepository] to new RepositoryConfig(conf) with DomainRepository
-  bind [DomainOwnerRepository] to new RepositoryConfig(conf) with DomainOwnerRepository
-  bind [TemplateRepository] to new RepositoryConfig(conf) with TemplateRepository
+  bind [DomainRepository] to new RepositoryConfig(dalConf) with DomainRepository
+  bind [DomainOwnerRepository] to new RepositoryConfig(dalConf) with DomainOwnerRepository
+  bind [TemplateRepository] to new RepositoryConfig(dalConf) with TemplateRepository
 
   // Message
 
-  bind [MessageRepository] to new RepositoryConfig(conf) with MessageRepository
-  bind [MessageLogRepository] to new RepositoryConfig(conf) with MessageLogRepository
-  bind [MessageQueueRepository] to new RepositoryConfig(conf) with MessageQueueRepository
-  bind [MessageStatsDailyRepository] to new RepositoryConfig(conf) with MessageStatsDailyRepository
-  bind [UnsubscribedRecipientRepository] to new RepositoryConfig(conf) with UnsubscribedRecipientRepository
+  bind [MessageRepository] to new RepositoryConfig(dalConf) with MessageRepository
+  bind [MessageLogRepository] to new RepositoryConfig(dalConf) with MessageLogRepository
+  bind [MessageQueueRepository] to new RepositoryConfig(dalConf) with MessageQueueRepository
+  bind [MessageStatsDailyRepository] to new RepositoryConfig(dalConf) with MessageStatsDailyRepository
+  bind [UnsubscribedRecipientRepository] to new RepositoryConfig(dalConf) with UnsubscribedRecipientRepository
 
   // Config
   
-  val conf = new MailDalConfig(inject [String] ('host), inject [String] ('keyspace))
+  val appConf = ConfigFactory.load()
   
-  binding identifiedBy 'host to "cassandra.host"
-  binding identifiedBy 'keyspace to "cassandra.keyspace"
+  val cassandraHost = appConf.getString("cassandra.host")
+  val cassandraKeyspace = appConf.getString("cassandra.keyspace")
+  
+  val dalConf = new MailDalConfig(cassandraHost, cassandraKeyspace)
   
 }
