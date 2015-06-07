@@ -13,15 +13,13 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scaldi.Injectable
 import scaldi.Injector
 
-//class AccountController(implicit inj: Injector, xc: ExecutionContext = ExecutionContext.global) extends Controller with Injectable {
-
 class AccountController(implicit inj: Injector) extends Controller with Injectable {
 
   val accountService = inject [AccountService]
   
   def createAccount = Action.async {
     
-    var future = Future[Int](Int.box(123))
+    var future = accountService.createAccount("organization", "team", "timezone");
     
     future.map(id => Ok("Created account: " + id))
   }
