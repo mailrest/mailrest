@@ -1,1 +1,2 @@
-curl -X POST --data "organization=Noorq&team=RnD&timezone=" http://localhost:9000/api/v1/accounts
+curl -i -X POST --data "organization=Noorq&team=RnD&timezone=" http://localhost:9000/api/v1/system/accounts
+curl -i -X POST --data "organization=Noorq&team=RnD&timezone=" http://localhost:9000/api/v1/system/accounts -H "X-Auth-Token: system"

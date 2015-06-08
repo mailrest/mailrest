@@ -12,6 +12,7 @@ libraryDependencies ++= Seq(
   "com.mailrest" % "maildal" % "1.0.0-SNAPSHOT",
   "org.scaldi" %% "scaldi-play" % "0.5.7",
   "com.typesafe" % "config" % "1.3.0",
+  "com.typesafe.scala-logging" % "scala-logging-slf4j_2.11" % "2.1.2",
   cache,
   ws
 )

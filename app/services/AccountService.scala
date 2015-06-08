@@ -15,6 +15,7 @@ import com.mailrest.maildal.repository.AccountLogRepository
 import com.mailrest.maildal.model.AccountUser
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext
+import com.typesafe.scalalogging.slf4j.LazyLogging
 
 trait AccountService {
 
@@ -22,7 +23,7 @@ trait AccountService {
   
 }
 
-class AccountServiceImpl(implicit inj: Injector, xc: ExecutionContext = ExecutionContext.global) extends AccountService with Injectable {
+class AccountServiceImpl(implicit inj: Injector, xc: ExecutionContext = ExecutionContext.global) extends AccountService with Injectable with LazyLogging {
  
   val accountRepository = inject [AccountRepository]
   val accountDomainRepository = inject [AccountDomainRepository]
@@ -30,8 +31,10 @@ class AccountServiceImpl(implicit inj: Injector, xc: ExecutionContext = Executio
   
   def createAccount(organization: String, team: String, timezone: String): Future[String] = {
     
-    accountRepository.createAccount(organization, team, timezone).map(t => t._2);
+    logger.info(s"begin createAccount for $organization")
     
+    accountRepository.createAccount(organization, team, timezone).map(t => t._2);
+
   }
     
   

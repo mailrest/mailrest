@@ -4,17 +4,17 @@
  */
 package controllers
 
+import scala.concurrent.ExecutionContext.Implicits.global
+
 import play.api.data._
 import play.api.data.Forms._
-
-import scala.concurrent.ExecutionContext
-import play.api.mvc.Action
+import play.api.mvc.ActionBuilder
+import play.api.mvc.ActionTransformer
 import play.api.mvc.Controller
-import services.AccountService
-import scala.concurrent.Future
-import scala.concurrent.ExecutionContext.Implicits.global
+import play.api.mvc.WrappedRequest
 import scaldi.Injectable
 import scaldi.Injector
+import services.AccountService
 
 class AccountController(implicit inj: Injector) extends Controller with Injectable {
 
@@ -28,8 +28,9 @@ class AccountController(implicit inj: Injector) extends Controller with Injectab
      )(NewAccountForm.apply)(NewAccountForm.unapply)
   )
   
-  def createAccount = Action.async { 
-    implicit request => {
+  
+  def createAccount = (AccountAction andThen AuthIt).async { 
+     implicit request => {
     
       val newAccount = newAccountForm.bindFromRequest.get
       

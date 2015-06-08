@@ -4,13 +4,15 @@
  */
 package modules
 
-import scaldi._
+import scala.concurrent.ExecutionContext
+import scala.reflect.runtime.universe
+
+import scaldi.Module
 import services.AccountService
 import services.AccountServiceImpl
-import scala.concurrent.ExecutionContext
 
 class ServiceModule extends Module {
-
+  
     bind [AccountService] to new AccountServiceImpl
 
     bind [ExecutionContext] to ExecutionContext.global
