@@ -5,14 +5,43 @@
 # Home page
 GET     /                             controllers.Application.index
 
-# Accounts
-POST    /api/v1/system/accounts       controllers.AccountController.createAccount
+# Account controllers
 
-# Domains
-#POST    /domains                      controllers.DomainController.createNew
-#GET     /domains/:id                  controllers.DomainController.findById(id: String)
-#PUT     /domains/:id                  controllers.DomainController.update(id: String)
-#DELETE  /domains/:id                  controllers.DomainController.delete(id: String)
+# Accounts
+POST    /api/v1/accounts           controllers.account.AccountController.create
+GET     /api/v1/accounts/:accId    controllers.account.AccountController.find(accId: String)
+DELETE  /api/v1/accounts/:accId    controllers.account.AccountController.drop(accId: String)
+
+# Account Other
+GET     /api/v1/accounts/:accId/log                controllers.account.AccountLogController.find(accId: String)
+
+# Account Domains
+POST    /api/v1/accounts/:accId/domains            controllers.account.AccountDomainController.create(accId: String)
+GET     /api/v1/accounts/:accId/domains/:domId     controllers.account.AccountDomainController.find(accId: String, domId: String)
+PUT     /api/v1/accounts/:accId/domains/:domId     controllers.account.AccountDomainController.update(accId: String, domId: String)
+DELETE  /api/v1/accounts/:accId/domains/:domId     controllers.account.AccountDomainController.drop(accId: String, domId: String)
+
+# Account Users
+POST    /api/v1/accounts/:accId/users             controllers.account.AccountUserController.create(accId: String)
+GET     /api/v1/accounts/:accId/users/:usrId      controllers.account.AccountUserController.find(accId: String, usrId: String)
+PUT     /api/v1/accounts/:accId/users/:usrId      controllers.account.AccountUserController.update(accId: String, usrId: String)
+DELETE  /api/v1/accounts/:accId/users/:usrId      controllers.account.AccountUserController.delete(accId: String, usrId: String)
+
+# Domain controllers
+
+# Templates
+POST    /api/v1/:domId/templates           controllers.domain.TemplateController.create
+GET     /api/v1/:domId/templates/:tplId    controllers.domain.TemplateController.find(domId: String, tplId: String)
+PUT     /api/v1/:domId/templates/:tplId    controllers.domain.TemplateController.update(domId: String, tplId: String)
+DELETE  /api/v1/:domId/templates/:tplId    controllers.domain.TemplateController.drop(domId: String, tplId: String)
+
+# Messages
+POST    /api/v1/:domId/messages           controllers.domain.MessageController.create
+GET     /api/v1/:domId/messages/:msgId    controllers.domain.MessageController.find(domId: String, msgId: String)
+PUT     /api/v1/:domId/messages/:msgId    controllers.domain.MessageController.update(domId: String, msgId: String)
+DELETE  /api/v1/:domId/messages/:msgId    controllers.domain.MessageController.drop(domId: String, msgId: String)
+
+
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file                 controllers.Assets.at(path="/public", file)

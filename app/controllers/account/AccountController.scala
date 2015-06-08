@@ -2,19 +2,19 @@
  *      Copyright (C) 2015 Noorq, Inc.
  *      All rights reserved.
  */
-package controllers
+package controllers.account
 
 import scala.concurrent.ExecutionContext.Implicits.global
-
 import play.api.data._
 import play.api.data.Forms._
-import play.api.mvc.ActionBuilder
-import play.api.mvc.ActionTransformer
 import play.api.mvc.Controller
-import play.api.mvc.WrappedRequest
 import scaldi.Injectable
 import scaldi.Injector
 import services.AccountService
+import controllers.AccountAction
+import controllers.AuthIt
+import scala.reflect.runtime.universe
+import play.api.mvc.Action
 
 class AccountController(implicit inj: Injector) extends Controller with Injectable {
 
