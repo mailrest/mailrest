@@ -31,7 +31,7 @@ class AccountController(implicit inj: Injector) extends Controller with Injectab
   )
   
   
-  def createAccount = action.async { 
+  def create = action.async { 
      implicit request => {
     
       val newAccount = newAccountForm.bindFromRequest.get

@@ -12,15 +12,15 @@ import scaldi.Injector
 import controllers.action.AccountAuthAction
 import controllers.action.AccountAction
 
-class AccountDomainController(implicit inj: Injector) extends Controller with Injectable {
+class AccountUserController(implicit inj: Injector) extends Controller with Injectable {
 
   val action = inject [AccountAction] andThen AccountAuthAction
     
   def create = action.async { 
     
      implicit request => {
-       
-       Future.successful(Ok("Added domain"))
+    
+       Future.successful(Ok("Added user"))
     }
   }
 
