@@ -39,7 +39,7 @@ class DomainAction(implicit inj: Injector) extends
   
 }
   
-object DAuth extends ActionFilter[DomainRequest] {
+object DomainAuthAction extends ActionFilter[DomainRequest] {
   
    def auth[A](input: DomainRequest[A], domainInfo: DomainInformation): Option[Result] = {
       input.headers.get("X-Auth-Token").filter { x => x == domainInfo.apiKey } 

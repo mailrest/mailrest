@@ -2,7 +2,7 @@
  *      Copyright (C) 2015 Noorq, Inc.
  *      All rights reserved.
  */
-package controllers
+package controllers.action
 
 import scala.concurrent.Future
 import play.api.mvc.ActionBuilder
@@ -11,12 +11,19 @@ import play.api.mvc.ActionTransformer
 import play.api.mvc.Request
 import play.api.mvc.WrappedRequest
 import play.api.mvc.Results
+import scala.annotation.implicitNotFound
+import services.AccountService
+import scaldi.Injectable
+import scaldi.Injector
 
 class AccountRequest[A](val accountId: String, val domainId: String, val apiKey: String, request: Request[A]) extends WrappedRequest[A](request)
 
-object AccountAction extends
+class AccountAction(implicit inj: Injector) extends 
     ActionBuilder[AccountRequest] 
-    with ActionTransformer[Request, AccountRequest] {
+    with ActionTransformer[Request, AccountRequest] 
+    with Injectable {
+  
+    val accountService = inject [AccountService]
   
   def transform[A](request: Request[A]) = Future.successful {
     
@@ -26,7 +33,7 @@ object AccountAction extends
   
 }
   
-object AuthIt extends ActionFilter[AccountRequest] {
+object AccountAuthAction extends ActionFilter[AccountRequest] {
   
   def filter[A](input: AccountRequest[A]) = Future.successful {
     input.headers.get("X-Auth-Token").filter { x => x == input.apiKey } 

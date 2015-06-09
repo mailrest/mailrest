@@ -5,17 +5,18 @@
 package controllers.account
 
 import scala.concurrent.Future
-
-import controllers.AccountAction
-import controllers.AuthIt
 import play.api._
 import play.api.mvc._
 import scaldi.Injectable
 import scaldi.Injector
+import controllers.action.AccountAuthAction
+import controllers.action.AccountAction
 
 class DomainController(implicit inj: Injector) extends Controller with Injectable {
 
-  def createDomain = (AccountAction andThen AuthIt).async { 
+  val action = inject [AccountAction] andThen AccountAuthAction
+    
+  def createDomain = action.async { 
     
      implicit request => {
     
