@@ -27,6 +27,7 @@ import scaldi.Injector
 import play.api.Application
 import com.typesafe.config.ConfigFactory
 import com.typesafe.config.Config
+import com.mailrest.maildal.repository.DomainVerificationQueueRepository
 
 
 class DalModule extends Module {
@@ -45,7 +46,8 @@ class DalModule extends Module {
   bind [DomainRepository] to new RepositoryConfig(dalConf) with DomainRepository
   bind [DomainOwnerRepository] to new RepositoryConfig(dalConf) with DomainOwnerRepository
   bind [TemplateRepository] to new RepositoryConfig(dalConf) with TemplateRepository
-
+  bind [DomainVerificationQueueRepository] to new RepositoryConfig(dalConf) with DomainVerificationQueueRepository
+  
   // Message
 
   bind [MessageRepository] to new RepositoryConfig(dalConf) with MessageRepository

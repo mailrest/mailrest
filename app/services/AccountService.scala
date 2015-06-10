@@ -16,6 +16,7 @@ import com.mailrest.maildal.model.AccountUser
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext
 import com.typesafe.scalalogging.slf4j.LazyLogging
+import com.mailrest.maildal.util.Base58
 
 trait AccountService {
 
