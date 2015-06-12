@@ -1,19 +1,18 @@
 package filters
 
 import scala.concurrent.Future
-
 import com.typesafe.scalalogging.slf4j.LazyLogging
-
 import play.api.mvc.Filter
 import play.api.mvc.RequestHeader
 import play.api.mvc.Result
 import play.api.mvc.Results
 import sun.misc.BASE64Decoder
+import com.mailrest.maildal.util.Base64
 
 object BasicAuthFilter extends Filter with LazyLogging {
   
     private lazy val unauthResult = Results.Unauthorized.withHeaders(("WWW-Authenticate", 
-    "Basic realm=\"myRealm\""))
+    "Basic realm=\"MailREST API\""))
     
     private lazy val passwordRequired = false
     private lazy val username = "someUsername"
@@ -40,9 +39,7 @@ object BasicAuthFilter extends Filter with LazyLogging {
             return None
         }
         val basicAuthSt = auth.replaceFirst(basicReqSt, "")
-        //BESE64Decoder is not thread safe, don't make it a field of this object
-        val decoder = new BASE64Decoder()
-        val decodedAuthSt = new String(decoder.decodeBuffer(basicAuthSt), "UTF-8")
+        val decodedAuthSt = new String(Base64.INSTANCE.decode(basicAuthSt), "UTF-8")
         val usernamePassword = decodedAuthSt.split(":")
         if (usernamePassword.length >= 2) {
             //account for ":" in passwords

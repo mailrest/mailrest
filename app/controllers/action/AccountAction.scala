@@ -15,28 +15,39 @@ import scala.annotation.implicitNotFound
 import services.AccountService
 import scaldi.Injectable
 import scaldi.Injector
+import com.mailrest.maildal.model.UserPermission
+import com.mailrest.maildal.secur.TokenManager
+import views.html.helper.input
+import com.mailrest.maildal.secur.AccountWebToken
 
-class AccountRequest[A](val accountId: String, val domainId: String, val apiKey: String, request: Request[A]) extends WrappedRequest[A](request)
+class AccountRequest[A](val accountInfo: Option[AccountInformation], request: Request[A]) extends WrappedRequest[A](request)
 
 class AccountAction(implicit inj: Injector) extends 
     ActionBuilder[AccountRequest] 
     with ActionTransformer[Request, AccountRequest] 
     with Injectable {
   
-    val accountService = inject [AccountService]
+    val accountTokenManager = inject [TokenManager[AccountWebToken]]
   
-  def transform[A](request: Request[A]) = Future.successful {
+    def decodeJwm(jwt: String): Option[AccountInformation] = {
+      try {
+        val awt = accountTokenManager.fromJwt(jwt);
+        Some(new AccountInformation(awt.getAccountId, awt.getUserId, awt.getPermission))
+      }
+      catch { case e: Exception => None }
+    }
     
-    new AccountRequest("123", "mailrest", "system", request)
-    
-  }
+    def transform[A](request: Request[A]) = Future.successful {
+      val accountInfo = request.headers.get("X-Auth-Token").flatMap { x => decodeJwm(x) }
+      new AccountRequest(accountInfo, request);
+    }
   
 }
   
-object AccountAuthAction extends ActionFilter[AccountRequest] {
+object AccountReadAction extends ActionFilter[AccountRequest] {
   
   def filter[A](input: AccountRequest[A]) = Future.successful {
-    input.headers.get("X-Auth-Token").filter { x => x == input.apiKey } 
+    input.accountInfo
     match {
       case Some(s) => None
       case None => Some(Results.Forbidden)
@@ -44,4 +55,30 @@ object AccountAuthAction extends ActionFilter[AccountRequest] {
   }
   
 }
+
+object AccountWriteAction extends ActionFilter[AccountRequest] {
+  
+  def filter[A](input: AccountRequest[A]) = Future.successful {
+    input.accountInfo.filter(x => ((x.userPermission == UserPermission.WRITE) || (x.userPermission == UserPermission.ADMIN)))
+    match {
+      case Some(s) => None
+      case None => Some(Results.Forbidden)
+    }
+  }
+  
+}
+
+object AccountAdminAction extends ActionFilter[AccountRequest] {
+  
+  def filter[A](input: AccountRequest[A]) = Future.successful {
+    input.accountInfo.filter(x => x.userPermission == UserPermission.ADMIN)
+    match {
+      case Some(s) => None
+      case None => Some(Results.Forbidden)
+    }
+  }
+  
+}
+
+case class AccountInformation(accountId: String, userId: String, userPermission: UserPermission)
 

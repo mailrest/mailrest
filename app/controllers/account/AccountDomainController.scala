@@ -9,14 +9,18 @@ import play.api._
 import play.api.mvc._
 import scaldi.Injectable
 import scaldi.Injector
-import controllers.action.AccountAuthAction
 import controllers.action.AccountAction
+import controllers.action.AccountAdminAction
+import controllers.action.AccountReadAction
+import controllers.action.AccountWriteAction
 
 class AccountDomainController(implicit inj: Injector) extends Controller with Injectable {
 
-  val action = inject [AccountAction] andThen AccountAuthAction
+  val readAction = inject [AccountAction] andThen AccountReadAction
+  val writeAction = inject [AccountAction] andThen AccountWriteAction
+  val adminAction = inject [AccountAction] andThen AccountAdminAction
     
-  def create = action.async { 
+  def create = Action.async { 
     
      implicit request => {
        

@@ -17,6 +17,9 @@ import scala.concurrent.Future
 import scala.concurrent.ExecutionContext
 import com.typesafe.scalalogging.slf4j.LazyLogging
 import com.mailrest.maildal.util.Base58
+import com.mailrest.maildal.model.UserPermission
+import com.mailrest.maildal.secur.TokenManager
+import com.mailrest.maildal.secur.AccountWebToken
 
 trait AccountService {
 
@@ -30,6 +33,8 @@ class AccountServiceImpl(implicit inj: Injector, xc: ExecutionContext = Executio
   val accountDomainRepository = inject [AccountDomainRepository]
   val accountLogRepository = inject [AccountLogRepository]
   
+  val accountTokenManager = inject [TokenManager[AccountWebToken]]
+  
   def createAccount(organization: String, team: String, timezone: String): Future[String] = {
     
     logger.info(s"begin createAccount for $organization")
@@ -40,3 +45,4 @@ class AccountServiceImpl(implicit inj: Injector, xc: ExecutionContext = Executio
     
   
 }
+

@@ -7,27 +7,13 @@ package modules
 import scala.reflect.runtime.universe
 import com.mailrest.maildal.config.MailDalConfig
 import com.mailrest.maildal.config.RepositoryConfig
-import com.mailrest.maildal.repository.AccountDomainRepository
-import com.mailrest.maildal.repository.AccountLogRepository
-import com.mailrest.maildal.repository.AccountRepository
-import com.mailrest.maildal.repository.CookieRepository
-import com.mailrest.maildal.repository.DomainOwnerRepository
-import com.mailrest.maildal.repository.DomainRepository
-import com.mailrest.maildal.repository.MessageLogRepository
-import com.mailrest.maildal.repository.MessageQueueRepository
-import com.mailrest.maildal.repository.MessageRepository
-import com.mailrest.maildal.repository.MessageStatsDailyRepository
-import com.mailrest.maildal.repository.TemplateRepository
-import com.mailrest.maildal.repository.UnsubscribedRecipientRepository
-import com.mailrest.maildal.repository.UserLinkRepository
-import com.mailrest.maildal.repository.UserRepository
+import com.mailrest.maildal.repository._
 import scaldi.Injectable
 import scaldi.Module
 import scaldi.Injector
 import play.api.Application
 import com.typesafe.config.ConfigFactory
 import com.typesafe.config.Config
-import com.mailrest.maildal.repository.DomainVerificationQueueRepository
 
 
 class DalModule extends Module {
@@ -37,9 +23,7 @@ class DalModule extends Module {
   bind [AccountRepository] to new RepositoryConfig(dalConf) with AccountRepository
   bind [AccountDomainRepository] to new RepositoryConfig(dalConf) with AccountDomainRepository
   bind [AccountLogRepository] to new RepositoryConfig(dalConf) with AccountLogRepository
-  bind [CookieRepository] to new RepositoryConfig(dalConf) with CookieRepository  
   bind [UserRepository] to new RepositoryConfig(dalConf) with UserRepository  
-  bind [UserLinkRepository] to new RepositoryConfig(dalConf) with UserLinkRepository  
   
   // Domain
 

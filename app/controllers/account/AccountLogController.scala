@@ -5,18 +5,23 @@
 package controllers.account
 
 import scala.concurrent.Future
+
+import controllers.action.AccountAction
+import controllers.action.AccountAdminAction
+import controllers.action.AccountReadAction
+import controllers.action.AccountWriteAction
 import play.api._
 import play.api.mvc._
 import scaldi.Injectable
 import scaldi.Injector
-import controllers.action.AccountAuthAction
-import controllers.action.AccountAction
 
 class AccountLogController(implicit inj: Injector) extends Controller with Injectable {
 
-  val action = inject [AccountAction] andThen AccountAuthAction
-    
-  def create = action.async { 
+  val readAction = inject [AccountAction] andThen AccountReadAction
+  val writeAction = inject [AccountAction] andThen AccountWriteAction
+  val adminAction = inject [AccountAction] andThen AccountAdminAction
+     
+  def create = Action.async { 
     
      implicit request => {
     

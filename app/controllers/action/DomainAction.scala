@@ -7,7 +7,6 @@ package controllers.action
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.reflect.runtime.universe
-
 import play.api.mvc.ActionBuilder
 import play.api.mvc.ActionFilter
 import play.api.mvc.ActionTransformer
@@ -19,6 +18,7 @@ import scaldi.Injectable
 import scaldi.Injector
 import services.DomainInformation
 import services.DomainService
+import com.mailrest.maildal.util.DomainId
 
 class DomainRequest[A](val domainInfo: Option[DomainInformation], request: Request[A]) extends WrappedRequest[A](request)
 
@@ -31,7 +31,7 @@ class DomainAction(implicit inj: Injector) extends
   
   def transform[A](request: Request[A]) = {
     
-    val domainId = request.domain.toLowerCase();
+    val domainId = DomainId.INSTANCE.fromDomain(request.domain);
     
     domainService.lookupDomain(domainId).map { v => new DomainRequest[A](v, request) }
 
@@ -41,11 +41,19 @@ class DomainAction(implicit inj: Injector) extends
   
 object DomainAuthAction extends ActionFilter[DomainRequest] {
   
-   def auth[A](input: DomainRequest[A], domainInfo: DomainInformation): Option[Result] = {
+   def authByBasic[A](input: DomainRequest[A], domainInfo: DomainInformation): Option[Result] = {
+      BasicAuthHelper.getCredentials(input).filter( x => x._1 == "api" && x._2 == domainInfo.apiKey)
+      match {
+        case Some(s) => None
+        case None => Some(BasicAuthHelper.requestAuth)
+      }
+   }
+  
+   def authByToken[A](input: DomainRequest[A], domainInfo: DomainInformation): Option[Result] = {
       input.headers.get("X-Auth-Token").filter { x => x == domainInfo.apiKey } 
       match {
         case Some(s) => None
-        case None => Some(Results.Forbidden)
+        case None => authByBasic(input, domainInfo)
       }
   }
 
@@ -53,8 +61,8 @@ object DomainAuthAction extends ActionFilter[DomainRequest] {
   def filter[A](input: DomainRequest[A]): Future[Option[Result]] = Future.successful {
     
     input.domainInfo match {
-      case Some(di) => auth(input, di)
-      case None => Some(Results.Forbidden)
+      case Some(di) => authByToken(input, di)
+      case None => Some(Results.NotFound)
     }
     
   }

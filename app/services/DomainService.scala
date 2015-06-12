@@ -20,13 +20,13 @@ class DomainServiceImpl(implicit inj: Injector, xc: ExecutionContext = Execution
   val domainRepository = inject [DomainRepository]
   val domainOwnerRepository = inject [DomainOwnerRepository]
   
-  def lookupDomain(domain: String, accountId: String): Future[Option[DomainInformation]] = {
+  def lookupDomain(domainId: String, accountId: String): Future[Option[DomainInformation]] = {
     
-    domainRepository.findApiKey(domain, accountId).map { x => {
+    domainRepository.findApiKey(domainId, accountId).map { x => {
       
       if (x.isPresent()) {
         val apiKey = x.get._1
-        Some(new DomainInformation(domain, accountId, apiKey))
+        Some(new DomainInformation(domainId, accountId, apiKey))
       }
       else {
         None
@@ -36,13 +36,13 @@ class DomainServiceImpl(implicit inj: Injector, xc: ExecutionContext = Execution
     
   }
   
-  def lookupDomain(domain: String): Future[Option[DomainInformation]] = {
+  def lookupDomain(domainId: String): Future[Option[DomainInformation]] = {
     
-    domainOwnerRepository.findOwner(domain).flatMap { x=> {
+    domainOwnerRepository.findOwner(domainId).flatMap { x=> {
       
       if (x.isPresent()) {
         val accountId = x.get._1
-        lookupDomain(domain, accountId)
+        lookupDomain(domainId, accountId)
       }
       else {
         Future.successful(None)
@@ -55,6 +55,6 @@ class DomainServiceImpl(implicit inj: Injector, xc: ExecutionContext = Execution
   
 }
 
-case class DomainInformation(domain: String, accountId: String, apiKey: String)
+case class DomainInformation(domainId: String, accountId: String, apiKey: String)
 
 

@@ -13,12 +13,16 @@ import scaldi.Injector
 import services.AccountService
 import scala.reflect.runtime.universe
 import play.api.mvc.Action
-import controllers.action.AccountAuthAction
 import controllers.action.AccountAction
+import controllers.action.AccountAdminAction
+import controllers.action.AccountReadAction
+import controllers.action.AccountWriteAction
 
 class AccountController(implicit inj: Injector) extends Controller with Injectable {
 
-  val action = inject [AccountAction] andThen AccountAuthAction
+  val readAction = inject [AccountAction] andThen AccountReadAction
+  val writeAction = inject [AccountAction] andThen AccountWriteAction
+  val adminAction = inject [AccountAction] andThen AccountAdminAction
   
   val accountService = inject [AccountService]
   
@@ -31,7 +35,7 @@ class AccountController(implicit inj: Injector) extends Controller with Injectab
   )
   
   
-  def create = action.async { 
+  def create = Action.async { 
      implicit request => {
     
       val newAccount = newAccountForm.bindFromRequest.get
