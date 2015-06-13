@@ -13,7 +13,8 @@ GET     /api/v1/accounts/:accId    controllers.account.AccountController.find(ac
 DELETE  /api/v1/accounts/:accId    controllers.account.AccountController.drop(accId: String)
 
 # Account Other
-GET     /api/v1/accounts/:accId/log                controllers.account.AccountLogController.find(accId: String)
+GET     /api/v1/accounts/:accId/log            controllers.account.AccountLogController.find(accId: String)
+POST    /api/v1/callbacks/:link                controllers.account.CallbackController.callback(link: String)
 
 # Account Domains
 POST    /api/v1/accounts/:accId/domains            controllers.account.AccountDomainController.create(accId: String)

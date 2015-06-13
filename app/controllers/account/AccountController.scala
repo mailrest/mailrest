@@ -17,6 +17,8 @@ import controllers.action.AccountAction
 import controllers.action.AccountAdminAction
 import controllers.action.AccountReadAction
 import controllers.action.AccountWriteAction
+import com.mailrest.maildal.model.AccountUser
+import com.mailrest.maildal.model.UserPermission
 
 class AccountController(implicit inj: Injector) extends Controller with Injectable {
 
@@ -28,9 +30,15 @@ class AccountController(implicit inj: Injector) extends Controller with Injectab
   
   val newAccountForm = Form(
     mapping(
-      "organization" -> nonEmptyText,
-      "team" -> text,
-      "timezone" -> text
+      "user" -> mapping (
+          "userId" -> nonEmptyText,
+          "email" -> email,
+          "firstName" -> optional(text), 
+          "lastName" -> optional(text)
+          )(NewUserForm.apply)(NewUserForm.unapply),
+      "organization" -> optional(text),
+      "team" -> optional(text),
+      "timezone" -> optional(text)
      )(NewAccountForm.apply)(NewAccountForm.unapply)
   )
   
@@ -40,7 +48,15 @@ class AccountController(implicit inj: Injector) extends Controller with Injectab
     
       val newAccount = newAccountForm.bindFromRequest.get
       
-      var future = accountService.createAccount(newAccount.organization, newAccount.team, newAccount.timezone);
+      val newUser = new NewUser(newAccount.user.userId, 
+          newAccount.user.email, 
+          newAccount.user.firstName.getOrElse(""), 
+          newAccount.user.lastName.getOrElse(""))
+      
+      val future = accountService.createAccount(newUser, 
+          newAccount.organization.getOrElse(""), 
+          newAccount.team.getOrElse(""), 
+          newAccount.timezone.getOrElse(""));
       
       future.map(id => Ok("Created account: " + id))
     }
@@ -48,5 +64,8 @@ class AccountController(implicit inj: Injector) extends Controller with Injectab
 
 }
 
-case class NewAccountForm(organization: String, team: String, timezone:String) {
-}
+case class NewUser(userId: String, email: String, firstName: String, lastName: String) extends AccountUser
+
+case class NewUserForm(userId: String, email: String, firstName: Option[String], lastName: Option[String]) 
+
+case class NewAccountForm(user: NewUserForm, organization: Option[String], team: Option[String], timezone: Option[String])
