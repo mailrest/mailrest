@@ -15,6 +15,7 @@ DELETE  /api/v1/accounts/:accId    controllers.account.AccountController.drop(ac
 # Account Other
 GET     /api/v1/accounts/:accId/log            controllers.account.AccountLogController.find(accId: String)
 POST    /api/v1/callbacks/:link                controllers.account.CallbackController.callback(link: String)
+GET     /api/v1/users/:userId                  controllers.account.UserController.find(userId: String)
 
 # Account Domains
 POST    /api/v1/accounts/:accId/domains            controllers.account.AccountDomainController.create(accId: String)

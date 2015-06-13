@@ -19,11 +19,15 @@ import scaldi.Injectable
 import scaldi.Injector
 import com.mailrest.maildal.model.UserPermission
 import com.mailrest.maildal.model.CallbackAction
+import com.mailrest.maildal.model.User
+import utils.ScalaHelper
 
 trait AccountService {
 
   def createAccount(user: AccountUser, organization: String, team: String, timezone: String): Future[String]
 
+  def findUser(userId: String): Future[Option[User]]
+  
   def confirmUser(cwt: CallbackWebToken, newPassword: String): Future[Boolean]
   
   def updatePassword(cwt: CallbackWebToken, newPassword: String): Future[Boolean]
@@ -50,13 +54,19 @@ class AccountServiceImpl(implicit inj: Injector, xc: ExecutionContext = Executio
 
   }
   
+  def findUser(userId: String): Future[Option[User]] = {
+    
+    userRepository.findUser(userId).map(ScalaHelper.optional)
+    
+  }
+  
   def sendConfirmationEmail(accountId: String, userId: String, email: String): String = {
     
     val cwt = new CallbackWebToken(accountId, userId, CallbackAction.CONFIRM_EMAIL); 
     
     val cwtLink = callbackTokenManager.toJwtLink(cwt, 60 * 24);
     
-    println(s"Confirmation email with $cwtLink");
+    println(s"Confirmation email with link $cwtLink");
     
     return accountId
   }
@@ -86,7 +96,7 @@ class AccountServiceImpl(implicit inj: Injector, xc: ExecutionContext = Executio
     
     for {
       
-      f1 <- userRepository.saveUser(au.userId(), newPassword, accountId, au.permission()).map { x => x.wasApplied() }
+      f1 <- userRepository.saveNewUser(au.userId(), newPassword, accountId, au.permission()).map { x => x.wasApplied() }
       
       f2 <- accountRepository.putAccountUser(accountId, au.userId(), confirmed).map { x => x.wasApplied() }
       
