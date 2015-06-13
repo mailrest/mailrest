@@ -21,11 +21,14 @@ import com.mailrest.maildal.model.UserPermission
 import com.mailrest.maildal.model.CallbackAction
 import com.mailrest.maildal.model.User
 import utils.ScalaHelper
+import com.mailrest.maildal.model.Account
 
 trait AccountService {
 
   def createAccount(user: AccountUser, organization: String, team: String, timezone: String): Future[String]
 
+  def findAccount(accId: String): Future[Option[Account]]
+  
   def findUser(userId: String): Future[Option[User]]
   
   def confirmUser(cwt: CallbackWebToken, newPassword: String): Future[Boolean]
@@ -54,9 +57,15 @@ class AccountServiceImpl(implicit inj: Injector, xc: ExecutionContext = Executio
 
   }
   
+  def findAccount(accId: String): Future[Option[Account]] = {
+    
+    accountRepository.findAccount(accId).map(ScalaHelper.asOption)
+    
+  }
+  
   def findUser(userId: String): Future[Option[User]] = {
     
-    userRepository.findUser(userId).map(ScalaHelper.optional)
+    userRepository.findUser(userId).map(ScalaHelper.asOption)
     
   }
   

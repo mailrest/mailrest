@@ -5,10 +5,13 @@
 package utils
 
 import java.util.Optional
+import java.util.Collection
+
+
 
 object ScalaHelper {
 
-  def optional[X](input: Optional[X]): Option[X] = {
+  def asOption[X](input: Optional[X]): Option[X] = {
     
     if (input.isPresent()) {
       Some(input.get)
@@ -16,6 +19,12 @@ object ScalaHelper {
     else {
       None
     }
+    
+  }
+  
+  def asSeq[X](col: Collection[X]): Seq[X] = {
+    
+    scala.collection.JavaConversions.asScalaIterator(col.iterator()).toSeq
     
   }
   

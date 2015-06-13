@@ -27,8 +27,8 @@ class UserController(implicit inj: Injector) extends Controller with Injectable 
   implicit val userWrites = new Writes[User] {
         override def writes(user: User): JsValue = {
             Json.obj(
-                "userId" -> user.userId(),
-                "accountId" -> user.accountId()
+                "userId" -> user.userId,
+                "accountId" -> user.accountId
             )
         }
   }

@@ -5,20 +5,30 @@
 package controllers.account
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import play.api.data._
-import play.api.data.Forms._
-import play.api.mvc.Controller
-import scaldi.Injectable
-import scaldi.Injector
-import services.AccountService
 import scala.reflect.runtime.universe
-import play.api.mvc.Action
+import com.mailrest.maildal.model.Account
+import com.mailrest.maildal.model.AccountUser
 import controllers.action.AccountAction
 import controllers.action.AccountAdminAction
 import controllers.action.AccountReadAction
 import controllers.action.AccountWriteAction
-import com.mailrest.maildal.model.AccountUser
-import com.mailrest.maildal.model.UserPermission
+import play.api.data.Form
+import play.api.data.Forms.email
+import play.api.data.Forms.mapping
+import play.api.data.Forms.nonEmptyText
+import play.api.data.Forms.optional
+import play.api.data.Forms.text
+import play.api.libs.json.JsValue
+import play.api.libs.json.Json
+import play.api.libs.json.Json.toJsFieldJsValueWrapper
+import play.api.libs.json.Writes
+import play.api.mvc.Action
+import play.api.mvc.Controller
+import scaldi.Injectable
+import scaldi.Injector
+import services.AccountService
+import java.util.Collection
+import utils.ScalaHelper
 
 class AccountController(implicit inj: Injector) extends Controller with Injectable {
 
@@ -27,6 +37,33 @@ class AccountController(implicit inj: Injector) extends Controller with Injectab
   val adminAction = inject [AccountAction] andThen AccountAdminAction
   
   val accountService = inject [AccountService]
+
+  
+  implicit val accountUserWrites = new Writes[AccountUser] {
+      override def writes(au: AccountUser): JsValue = {
+          Json.obj(
+              "userId" -> au.userId,
+              "email" -> au.email,
+              "firstName" -> au.firstName,
+              "lastName" -> au.lastName,
+              "permission" -> au.permission.name,
+              "confirmed" -> au.confirmed
+          )
+      }
+  }
+  
+  implicit val accountWrites = new Writes[Account] {
+      override def writes(account: Account): JsValue = {
+          Json.obj(
+              "accountId" -> account.accountId,
+              "createdAt" -> account.createdAt,
+              "organization" -> account.organization,
+              "team" -> account.team,
+              "timezone" -> account.timezone,
+              "users" -> Json.arr(ScalaHelper.asSeq(account.users.values))
+          )
+      }
+  }
   
   val newAccountForm = Form(
     mapping(
@@ -62,6 +99,24 @@ class AccountController(implicit inj: Injector) extends Controller with Injectab
     }
   }
 
+  def find(accId: String) = readAction.async {
+    implicit request => {
+      
+      accountService.findAccount(accId).map { x => {
+        
+        x match {
+          
+          case Some(a) => Ok(Json.toJson(a))
+          case None => NotFound
+          
+          
+        }
+        
+      } }
+      
+    }
+  }
+  
 }
 
 case class NewUser(userId: String, email: String, firstName: String, lastName: String) extends AccountUser
