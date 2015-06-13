@@ -29,6 +29,8 @@ trait AccountService {
 
   def findAccount(accId: String): Future[Option[Account]]
   
+  def dropAccount(accId: String): Future[Boolean]
+  
   def findUser(userId: String): Future[Option[User]]
   
   def confirmUser(cwt: CallbackWebToken, newPassword: String): Future[Boolean]
@@ -60,6 +62,12 @@ class AccountServiceImpl(implicit inj: Injector, xc: ExecutionContext = Executio
   def findAccount(accId: String): Future[Option[Account]] = {
     
     accountRepository.findAccount(accId).map(ScalaHelper.asOption)
+    
+  }
+  
+  def dropAccount(accId: String): Future[Boolean] = {
+    
+    accountRepository.dropAccount(accId).map { x => x.wasApplied() }
     
   }
   

@@ -29,6 +29,7 @@ import scaldi.Injector
 import services.AccountService
 import java.util.Collection
 import utils.ScalaHelper
+import com.mailrest.maildal.model.UserPermission
 
 class AccountController(implicit inj: Injector) extends Controller with Injectable {
 
@@ -117,9 +118,29 @@ class AccountController(implicit inj: Injector) extends Controller with Injectab
     }
   }
   
+  def drop(accId: String) = adminAction.async {
+    
+    implicit request => {
+      
+      accountService.dropAccount(accId).map { dropped => {
+        
+        if (dropped) {
+          Ok
+        }
+        else {
+          NotFound
+        }
+        
+        
+      } }
+      
+    }
+    
+  }
+  
 }
 
-case class NewUser(userId: String, email: String, firstName: String, lastName: String) extends AccountUser
+case class NewUser(userId: String, email: String, firstName: String, lastName: String, permission: UserPermission = UserPermission.ADMIN) extends AccountUser
 
 case class NewUserForm(userId: String, email: String, firstName: Option[String], lastName: Option[String]) 
 
