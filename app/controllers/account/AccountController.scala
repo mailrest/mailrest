@@ -33,9 +33,11 @@ import com.mailrest.maildal.model.UserPermission
 
 class AccountController(implicit inj: Injector) extends Controller with Injectable {
 
-  val readAction = inject [AccountAction] andThen AccountReadAction
-  val writeAction = inject [AccountAction] andThen AccountWriteAction
-  val adminAction = inject [AccountAction] andThen AccountAdminAction
+  val accountAction = inject [AccountAction]
+  
+  def readAction(accId: String) = accountAction andThen new AccountReadAction(accId)
+  def writeAction(accId: String) = accountAction andThen new AccountWriteAction(accId)
+  def adminAction(accId: String) = accountAction andThen new AccountAdminAction(accId)
   
   val accountService = inject [AccountService]
 
@@ -100,7 +102,7 @@ class AccountController(implicit inj: Injector) extends Controller with Injectab
     }
   }
 
-  def find(accId: String) = readAction.async {
+  def find(accId: String) = readAction(accId).async {
     implicit request => {
       
       accountService.findAccount(accId).map { x => {
@@ -118,7 +120,7 @@ class AccountController(implicit inj: Injector) extends Controller with Injectab
     }
   }
   
-  def drop(accId: String) = adminAction.async {
+  def drop(accId: String) = adminAction(accId).async {
     
     implicit request => {
       
@@ -140,7 +142,7 @@ class AccountController(implicit inj: Injector) extends Controller with Injectab
   
 }
 
-case class NewUser(userId: String, email: String, firstName: String, lastName: String, permission: UserPermission = UserPermission.ADMIN) extends AccountUser
+case class NewUser(userId: String, email: String, firstName: String, lastName: String, permission: UserPermission = UserPermission.ADMIN, confirmed: Boolean = false) extends AccountUser
 
 case class NewUserForm(userId: String, email: String, firstName: Option[String], lastName: Option[String]) 
 

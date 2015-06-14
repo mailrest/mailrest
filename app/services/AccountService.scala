@@ -34,6 +34,8 @@ trait AccountService {
   
   def findAccountLogs(accId: String, limit: Int): Future[Seq[AccountLog]]
   
+  def addUser(accId: String, user: AccountUser): Future[Boolean]
+  
   def findUser(userId: String): Future[Option[User]]
   
   def confirmUser(cwt: CallbackWebToken, newPassword: String): Future[Boolean]

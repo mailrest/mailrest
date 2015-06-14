@@ -16,9 +16,11 @@ import controllers.action.AccountWriteAction
 
 class AccountDomainController(implicit inj: Injector) extends Controller with Injectable {
 
-  val readAction = inject [AccountAction] andThen AccountReadAction
-  val writeAction = inject [AccountAction] andThen AccountWriteAction
-  val adminAction = inject [AccountAction] andThen AccountAdminAction
+  val accountAction = inject [AccountAction]
+  
+  def readAction(accId: String) = accountAction andThen new AccountReadAction(accId)
+  def writeAction(accId: String) = accountAction andThen new AccountWriteAction(accId)
+  def adminAction(accId: String) = accountAction andThen new AccountAdminAction(accId)
     
   def create = Action.async { 
     

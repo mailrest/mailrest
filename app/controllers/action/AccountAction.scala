@@ -43,11 +43,11 @@ class AccountAction(implicit inj: Injector) extends
     }
   
 }
-  
-object AccountReadAction extends ActionFilter[AccountRequest] {
+
+class AccountReadAction(accId: String) extends ActionFilter[AccountRequest] {
   
   def filter[A](input: AccountRequest[A]) = Future.successful {
-    input.accountInfo
+    input.accountInfo.filter { x => x.accountId == accId }
     match {
       case Some(s) => None
       case None => Some(Results.Forbidden)
@@ -56,10 +56,11 @@ object AccountReadAction extends ActionFilter[AccountRequest] {
   
 }
 
-object AccountWriteAction extends ActionFilter[AccountRequest] {
+class AccountWriteAction(accId: String) extends ActionFilter[AccountRequest] {
   
   def filter[A](input: AccountRequest[A]) = Future.successful {
-    input.accountInfo.filter(x => ((x.userPermission == UserPermission.WRITE) || (x.userPermission == UserPermission.ADMIN)))
+    input.accountInfo.filter { x => x.accountId == accId }
+    .filter(x => x.userPermission != UserPermission.READ_ONLY)
     match {
       case Some(s) => None
       case None => Some(Results.Forbidden)
@@ -68,10 +69,11 @@ object AccountWriteAction extends ActionFilter[AccountRequest] {
   
 }
 
-object AccountAdminAction extends ActionFilter[AccountRequest] {
+class AccountAdminAction(accId: String) extends ActionFilter[AccountRequest] {
   
   def filter[A](input: AccountRequest[A]) = Future.successful {
-    input.accountInfo.filter(x => x.userPermission == UserPermission.ADMIN)
+    input.accountInfo.filter { x => x.accountId == accId }
+    .filter(x => x.userPermission == UserPermission.ADMIN)
     match {
       case Some(s) => None
       case None => Some(Results.Forbidden)
