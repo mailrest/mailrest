@@ -113,7 +113,7 @@ class AccountController(implicit inj: Injector) extends AbstractAccountControlle
     }
   }
   
-  def drop(accId: String) = adminAction(accId).async {
+  def delete(accId: String) = adminAction(accId).async {
     
     implicit request => {
       

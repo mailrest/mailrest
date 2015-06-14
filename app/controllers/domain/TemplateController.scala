@@ -8,6 +8,7 @@ import scala.concurrent.Future
 
 import scaldi.Injector
 
+
 class MessageController(implicit inj: Injector) extends AbstractDomainController {
 
   def create(domId: String) = domainAction(domId).async { 
@@ -16,6 +17,27 @@ class MessageController(implicit inj: Injector) extends AbstractDomainController
       Future.successful { Ok("Created template: ") }
     }
   }
+  
+  def find(domId: String, tplId: String) = domainAction(domId).async { 
+     implicit request => {
+      
+      Future.successful { Ok("Created template: ") }
+    }
+  }
+  
+  def update(domId: String, tplId: String) = domainAction(domId).async { 
+     implicit request => {
+      
+      Future.successful { Ok("Created template: ") }
+    }
+  }
+  
+  def delete(domId: String, tplId: String) = domainAction(domId).async { 
+     implicit request => {
+      
+      Future.successful { Ok("Created template: ") }
+    }
+  }  
 
 }
 

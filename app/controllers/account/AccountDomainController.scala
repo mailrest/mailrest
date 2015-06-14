@@ -11,7 +11,7 @@ import scaldi.Injector
 
 class AccountDomainController(implicit inj: Injector) extends AbstractAccountController {
 
-  def create = Action.async { 
+  def create(accId: String) = writeAction(accId).async { 
     
      implicit request => {
        
@@ -19,4 +19,28 @@ class AccountDomainController(implicit inj: Injector) extends AbstractAccountCon
     }
   }
 
+  def find(accId: String, domId: String) = readAction(accId).async { 
+    
+     implicit request => {
+       
+       Future.successful(Ok("Added domain"))
+    }
+  }
+  
+  def update(accId: String, domId: String) = writeAction(accId).async { 
+    
+     implicit request => {
+       
+       Future.successful(Ok("Added domain"))
+    }
+  }
+  
+  def delete(accId: String, domId: String) = writeAction(accId).async { 
+    
+     implicit request => {
+       
+       Future.successful(Ok("Added domain"))
+    }
+  }
+    
 }
