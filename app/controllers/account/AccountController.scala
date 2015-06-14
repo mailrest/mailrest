@@ -4,10 +4,14 @@
  */
 package controllers.account
 
+import scala.annotation.implicitNotFound
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.reflect.runtime.universe
+
 import com.mailrest.maildal.model.Account
 import com.mailrest.maildal.model.AccountUser
+import com.mailrest.maildal.model.UserPermission
+
 import controllers.action.AccountAction
 import controllers.action.AccountAdminAction
 import controllers.action.AccountReadAction
@@ -23,25 +27,14 @@ import play.api.libs.json.Json
 import play.api.libs.json.Json.toJsFieldJsValueWrapper
 import play.api.libs.json.Writes
 import play.api.mvc.Action
-import play.api.mvc.Controller
-import scaldi.Injectable
 import scaldi.Injector
 import services.AccountService
-import java.util.Collection
 import utils.ScalaHelper
-import com.mailrest.maildal.model.UserPermission
 
-class AccountController(implicit inj: Injector) extends Controller with Injectable {
+class AccountController(implicit inj: Injector) extends AbstractAccountController {
 
-  val accountAction = inject [AccountAction]
-  
-  def readAction(accId: String) = accountAction andThen new AccountReadAction(accId)
-  def writeAction(accId: String) = accountAction andThen new AccountWriteAction(accId)
-  def adminAction(accId: String) = accountAction andThen new AccountAdminAction(accId)
-  
   val accountService = inject [AccountService]
 
-  
   implicit val accountUserWrites = new Writes[AccountUser] {
       override def writes(au: AccountUser): JsValue = {
           Json.obj(

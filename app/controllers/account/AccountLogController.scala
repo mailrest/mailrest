@@ -4,31 +4,22 @@
  */
 package controllers.account
 
+import scala.annotation.implicitNotFound
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
-import controllers.action.AccountAction
-import controllers.action.AccountAdminAction
-import controllers.action.AccountReadAction
-import controllers.action.AccountWriteAction
-import play.api._
-import play.api.mvc._
-import play.api.libs.json.Json
-import scaldi.Injectable
-import scaldi.Injector
-import services.AccountService
-import play.api.libs.json.Writes
-import play.api.libs.json.JsValue
+import scala.reflect.runtime.universe
+
 import com.mailrest.maildal.model.AccountLog
 import com.mailrest.maildal.model.UserInfo
 
-class AccountLogController(implicit inj: Injector) extends Controller with Injectable {
+import play.api.libs.json.JsValue
+import play.api.libs.json.Json
+import play.api.libs.json.Json.toJsFieldJsValueWrapper
+import play.api.libs.json.Writes
+import scaldi.Injector
+import services.AccountService
 
-  val accountAction = inject [AccountAction]
-  
-  def readAction(accId: String) = accountAction andThen new AccountReadAction(accId)
-  def writeAction(accId: String) = accountAction andThen new AccountWriteAction(accId)
-  def adminAction(accId: String) = accountAction andThen new AccountAdminAction(accId)
-     
+class AccountLogController(implicit inj: Injector) extends AbstractAccountController {
+
   val accountService = inject [AccountService]
   
   implicit val userInfoWrites = new Writes[UserInfo] {
