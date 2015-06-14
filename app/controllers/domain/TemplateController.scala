@@ -2,7 +2,7 @@
  *      Copyright (C) 2015 Noorq, Inc.
  *      All rights reserved.
  */
-package controllers.account
+package controllers.domain
 
 import scala.concurrent.Future
 
