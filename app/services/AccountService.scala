@@ -34,7 +34,11 @@ trait AccountService {
   
   def findAccountLogs(accId: String, limit: Int): Future[Seq[AccountLog]]
   
-  def addUser(accId: String, user: AccountUser): Future[Boolean]
+  def putAccountUser(accId: String, user: AccountUser): Future[Boolean]
+  
+  def findAccountUser(accId: String, userId: String): Future[Option[AccountUser]]
+  
+  def removeUser(accId: String, userId: String): Future[Boolean]
   
   def findUser(userId: String): Future[Option[User]]
   
@@ -79,6 +83,35 @@ class AccountServiceImpl(implicit inj: Injector, xc: ExecutionContext = Executio
   def findAccountLogs(accId: String, limit: Int): Future[Seq[AccountLog]] = {
     
     accountLogRepository.getAccountLogs(accId, limit).map(ScalaHelper.toSeq)
+    
+  }
+  
+  def putAccountUser(accId: String, user: AccountUser): Future[Boolean] = {
+    
+    accountRepository.putAccountUser(accId, user.userId, user).map { x => x.wasApplied() }
+    
+  }
+  
+  def findAccountUser(accId: String, userId: String): Future[Option[AccountUser]] = {
+    
+    accountRepository.findAccountUser(accId, userId).map(ScalaHelper.asOption)
+    
+  }
+  
+  def removeUser(accId: String, userId: String): Future[Boolean] = {
+  
+    for {
+      
+      f1 <- accountRepository.removeAccountUser(accId, userId)
+      
+      f2 <- userRepository.dropUser(userId)
+      
+    }
+    yield {
+     
+      f1.wasApplied() || f2.wasApplied()
+      
+    }
     
   }
   
