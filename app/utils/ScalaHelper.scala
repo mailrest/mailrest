@@ -28,4 +28,16 @@ object ScalaHelper {
     
   }
   
+  def toSeq[X](stream: java.util.stream.Stream[X]): Seq[X] = {
+    
+    scala.collection.JavaConversions.asScalaIterator(stream.iterator()).toSeq
+    
+  }
+  
+  def toStream[X](stream: java.util.stream.Stream[X]): Stream[X] = {
+    
+    scala.collection.JavaConversions.asScalaIterator(stream.iterator()).toStream
+    
+  }
+  
 }

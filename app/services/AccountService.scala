@@ -22,6 +22,7 @@ import com.mailrest.maildal.model.CallbackAction
 import com.mailrest.maildal.model.User
 import utils.ScalaHelper
 import com.mailrest.maildal.model.Account
+import com.mailrest.maildal.model.AccountLog
 
 trait AccountService {
 
@@ -30,6 +31,8 @@ trait AccountService {
   def findAccount(accId: String): Future[Option[Account]]
   
   def dropAccount(accId: String): Future[Boolean]
+  
+  def findAccountLogs(accId: String, limit: Int): Future[Seq[AccountLog]]
   
   def findUser(userId: String): Future[Option[User]]
   
@@ -68,6 +71,12 @@ class AccountServiceImpl(implicit inj: Injector, xc: ExecutionContext = Executio
   def dropAccount(accId: String): Future[Boolean] = {
     
     accountRepository.dropAccount(accId).map { x => x.wasApplied() }
+    
+  }
+  
+  def findAccountLogs(accId: String, limit: Int): Future[Seq[AccountLog]] = {
+    
+    accountLogRepository.getAccountLogs(accId, limit).map(ScalaHelper.toSeq)
     
   }
   
