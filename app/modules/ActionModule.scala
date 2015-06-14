@@ -18,7 +18,6 @@ import com.mailrest.maildal.secur.CallbackWebToken
 class ActionModule extends Module {
 
   bind [AccountAction] to new AccountAction
-  bind [DomainAction] to new DomainAction
   
   bind [TokenManager[AccountWebToken]] to new DefaultTokenManager[AccountWebToken](new AccountWebToken())
   bind [TokenManager[CallbackWebToken]] to new DefaultTokenManager[CallbackWebToken](new CallbackWebToken())
