@@ -8,6 +8,8 @@ import scaldi.Injector
 import com.mailrest.maildal.repository.DomainRepository
 import com.mailrest.maildal.repository.DomainOwnerRepository
 import scala.concurrent.Future
+import com.mailrest.maildal.repository.AccountDomainRepository
+import com.mailrest.maildal.util.DomainId
 
 trait DomainService {
 
@@ -52,6 +54,7 @@ class DomainServiceImpl(implicit inj: Injector, xc: ExecutionContext = Execution
 
 
   }
+  
   
 }
 

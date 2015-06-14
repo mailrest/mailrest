@@ -22,13 +22,13 @@ import com.mailrest.maildal.util.DomainId
 
 class DomainRequest[A](val domainInfo: Option[DomainInformation], request: Request[A]) extends WrappedRequest[A](request)
 
-class DomainAction(domen: String, domainService: DomainService) extends
+class DomainAction(domainIdn: String, domainService: DomainService) extends
     ActionBuilder[DomainRequest] 
     with ActionTransformer[Request, DomainRequest] {
   
   def transform[A](request: Request[A]) = {
     
-    val domainId = DomainId.INSTANCE.fromDomain(domen);
+    val domainId = DomainId.INSTANCE.fromDomainIdn(domainIdn);
     
     domainService.lookupDomain(domainId).map { v => new DomainRequest[A](v, request) }
 

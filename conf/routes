@@ -24,10 +24,10 @@ PUT     /api/v1/accounts/:accId/users/:usrId       controllers.account.AccountUs
 DELETE  /api/v1/accounts/:accId/users/:usrId       controllers.account.AccountUserController.delete(accId: String, usrId: String)
 
 # Account Domains
-POST    /api/v1/accounts/:accId/domains            controllers.account.AccountDomainController.create(accId: String)
-GET     /api/v1/accounts/:accId/domains/:domId     controllers.account.AccountDomainController.find(accId: String, domId: String)
-PUT     /api/v1/accounts/:accId/domains/:domId     controllers.account.AccountDomainController.update(accId: String, domId: String)
-DELETE  /api/v1/accounts/:accId/domains/:domId     controllers.account.AccountDomainController.delete(accId: String, domId: String)
+GET     /api/v1/accounts/:accId/domains             controllers.account.AccountDomainController.findAll(accId: String)
+POST    /api/v1/accounts/:accId/domains             controllers.account.AccountDomainController.create(accId: String)
+GET     /api/v1/accounts/:accId/domains/:domIdn     controllers.account.AccountDomainController.find(accId: String, domIdn: String)
+DELETE  /api/v1/accounts/:accId/domains/:domIdn     controllers.account.AccountDomainController.delete(accId: String, domIdn: String)
 
 # Domain controllers
 

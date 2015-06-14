@@ -4,43 +4,91 @@
  */
 package controllers.account
 
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
-
 import play.api.mvc.Action
 import scaldi.Injector
+import play.api.data.Form
+import play.api.data.Forms._
+import services.AccountService
+import play.api.libs.json.Json
+import play.api.libs.json.Writes
+import play.api.libs.json.JsValue
+import com.mailrest.maildal.model.AccountDomain
+import utils.ScalaHelper
+import com.mailrest.maildal.model.DomainVerificationEvent
 
 class AccountDomainController(implicit inj: Injector) extends AbstractAccountController {
 
+  val accountService = inject [AccountService]
+
+  implicit val domainVerificationEventWrites = new Writes[DomainVerificationEvent] {
+      override def writes(dv: DomainVerificationEvent): JsValue = {
+          Json.obj(
+              "eventAt" -> dv.eventAt,
+              "status" -> dv.status.name,
+              "message" -> dv.message
+          )
+      }
+  }   
+  
+  implicit val accountDomainWrites = new Writes[AccountDomain] {
+      override def writes(ad: AccountDomain): JsValue = {
+          Json.obj(
+              "accountId" -> ad.accountId,
+              "domainId" -> ad.domainId,
+              "createdAt" -> ad.createdAt,
+              "domainIdn" -> ad.domainIdn,
+              "events" -> Json.arr(ScalaHelper.asSeq(ad.events))
+          )
+      }
+  }    
+  
+  val newDomainForm = Form(
+    mapping (
+      "domainIdn" -> nonEmptyText
+    )(NewDomainForm.apply)(NewDomainForm.unapply)
+  )      
+  
+  def findAll(accId: String) = readAction(accId).async { 
+    
+    accountService.findDomains(accId).map(x => Ok(Json.toJson(x)))
+    
+  }
+  
   def create(accId: String) = writeAction(accId).async { 
     
      implicit request => {
        
-       Future.successful(Ok("Added domain"))
+       val form = newDomainForm.bindFromRequest.get
+       
+       accountService.addDomain(accId, form.domainIdn).map(x => Ok)
+       
     }
+     
   }
 
-  def find(accId: String, domId: String) = readAction(accId).async { 
+  def find(accId: String, domIdn: String) = readAction(accId).async { 
     
-     implicit request => {
-       
-       Future.successful(Ok("Added domain"))
-    }
+    accountService.findDomain(accId, domIdn).map { x => {
+      
+      x match {
+        
+        case Some(ad) => Ok(Json.toJson(ad))
+        case None => NotFound
+        
+      }
+      
+    }}
+    
   }
   
-  def update(accId: String, domId: String) = writeAction(accId).async { 
+  def delete(accId: String, domIdn: String) = writeAction(accId).async { 
     
-     implicit request => {
-       
-       Future.successful(Ok("Added domain"))
-    }
-  }
-  
-  def delete(accId: String, domId: String) = writeAction(accId).async { 
+    accountService.deleteDomain(accId, domIdn).map(x => Ok)
     
-     implicit request => {
-       
-       Future.successful(Ok("Added domain"))
-    }
   }
     
 }
+
+case class NewDomainForm(domainIdn: String) 
