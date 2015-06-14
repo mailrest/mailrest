@@ -12,10 +12,13 @@ import services.AccountServiceImpl
 import com.mailrest.maildal.secur.DefaultTokenManager
 import com.mailrest.maildal.secur.AccountWebToken
 import com.mailrest.maildal.secur.TokenManager
+import services.DomainService
+import services.DomainServiceImpl
 
 class ServiceModule extends Module {
   
     bind [AccountService] to new AccountServiceImpl
-
+    bind [DomainService] to new DomainServiceImpl
+        
     bind [ExecutionContext] to ExecutionContext.global
 }
