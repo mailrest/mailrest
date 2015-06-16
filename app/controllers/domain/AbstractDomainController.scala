@@ -19,6 +19,6 @@ abstract class AbstractDomainController(implicit inj: Injector) extends Controll
 
   val domainService = inject [DomainService]
     
-  def domainAction(domId: String) = new DomainAction(domId, domainService) andThen DomainAuthAction
+  def domainAction(domIdn: String) = new DomainAction(domIdn, domainService) andThen DomainAuthAction
     
 }

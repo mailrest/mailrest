@@ -4,40 +4,151 @@
  */
 package controllers.domain
 
-import scala.concurrent.Future
-
+import scala.concurrent.ExecutionContext.Implicits.global
+import com.mailrest.maildal.model.Template
+import com.mailrest.maildal.model.TemplateEngine
+import controllers.action.DomainRequest
+import play.api.data.Form
+import play.api.data.Forms._
+import play.api.libs.json.JsValue
+import play.api.libs.json.Json
+import play.api.libs.json.Writes
+import play.api.mvc.AnyContent
 import scaldi.Injector
+import services.TemplateBean
+import services.TemplateId
+import services.TemplateService
+import services.TemplateInfo
 
+class TemplateController(implicit inj: Injector) extends AbstractDomainController {
 
-class MessageController(implicit inj: Injector) extends AbstractDomainController {
+  val templateService = inject [TemplateService]
+  
+  implicit val templateWrites = new Writes[TemplateInfo] {
+      override def writes(t: TemplateInfo): JsValue = {
+          Json.obj(
+              "name" -> t.template.name,
+              "description" -> t.template.description,
+              "engine" -> t.template.engine.name,
+              "fromRecipients" -> t.template.fromRecipients,
+              "bccRecipients" -> t.template.bccRecipients,
+              "subject" -> t.template.subject,
+              "textBody" -> t.template.textBody,
+              "htmlBody" -> t.template.htmlBody,
+              "deployedAt" -> t.deployedAt
+          )
+      }
+  }  
+  
+  val templateMapping = mapping(
+      "name" -> optional(text),
+      "description" -> optional(text),
+      "engine" -> nonEmptyText,
+      "fromRecipients" -> optional(text),
+      "bccRecipients" -> optional(text),
+      "subject" -> optional(text),
+      "textBody" -> optional(text),
+      "htmlBody" -> optional(text)
+     )(TemplateForm.apply)(TemplateForm.unapply)
+  
+  val newTemplateForm = Form(
+    mapping(
+      "templateId" -> nonEmptyText,
+      "env" -> nonEmptyText,
+      "template" -> templateMapping
+     )(NewTemplateForm.apply)(NewTemplateForm.unapply)
+  )  
 
-  def create(domId: String) = domainAction(domId).async { 
+  val templateForm = Form(templateMapping)  
+
+  def makeId(request: DomainRequest[AnyContent], templateId: String, env: String): TemplateId = {
+     new TemplateId(
+          request.domainInfo.get.domainId,
+          request.domainInfo.get.accountId,
+          templateId,
+          env
+     ) 
+  }
+  
+  def makeBean(form: TemplateForm): TemplateBean = {
+    
+     new TemplateBean(
+          form.name.getOrElse(""),
+          form.description.getOrElse(""),
+          TemplateEngine.valueOf(form.engine),
+          form.fromRecipients.getOrElse(""),
+          form.bccRecipients.getOrElse(""),
+          form.subject.getOrElse(""),
+          form.textBody.getOrElse(""),
+          form.htmlBody.getOrElse("")
+      )
+      
+  }
+  
+  def create(domIdn: String) = domainAction(domIdn).async { 
      implicit request => {
       
-      Future.successful { Ok("Created template: ") }
+      val form = newTemplateForm.bindFromRequest.get 
+
+      templateService.update(
+          makeId(request, form.templateId, form.env), 
+          makeBean(form.template)
+          ).map { x => Ok }
+      
     }
   }
   
-  def find(domId: String, tplId: String) = domainAction(domId).async { 
+  def find(domIdn: String, tplId: String, env: String) = domainAction(domIdn).async {
+    
      implicit request => {
       
-      Future.successful { Ok("Created template: ") }
+      templateService.find(makeId(request, tplId, env)).map { x => {
+            
+            x match {
+              
+              case Some(t) => Ok(Json.toJson(t))
+              case None => NotFound
+              
+            }
+            
+          } }
+       
     }
   }
   
-  def update(domId: String, tplId: String) = domainAction(domId).async { 
+  def update(domIdn: String, tplId: String, env: String) = domainAction(domIdn).async { 
      implicit request => {
+       
+      val form = templateForm.bindFromRequest.get 
       
-      Future.successful { Ok("Created template: ") }
+      templateService.update(
+          makeId(request, tplId, env), 
+          makeBean(form)
+          ).map { x => Ok }
     }
   }
   
-  def delete(domId: String, tplId: String) = domainAction(domId).async { 
+  def delete(domIdn: String, tplId: String, env: String, deployedAt: Option[Long]) = domainAction(domIdn).async { 
      implicit request => {
       
-      Future.successful { Ok("Created template: ") }
+      templateService.delete(
+          makeId(request, tplId, env), 
+          deployedAt.getOrElse(0)
+          ).map { x => Ok }          
+       
     }
   }  
 
 }
+
+case class NewTemplateForm(templateId: String, env: String, template: TemplateForm)
+
+case class TemplateForm(
+    
+name: Option[String], description: Option[String], engine: String, 
+fromRecipients: Option[String], bccRecipients: Option[String],
+subject: Option[String], textBody: Option[String], htmlBody: Option[String]
+
+) 
+
 

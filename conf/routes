@@ -32,16 +32,16 @@ DELETE  /api/v1/accounts/:accId/domains/:domIdn     controllers.account.AccountD
 # Domain controllers
 
 # Templates
-POST    /api/v1/:domId/templates           controllers.domain.TemplateController.create(domId: String)
-GET     /api/v1/:domId/templates/:tplId    controllers.domain.TemplateController.find(domId: String, tplId: String)
-PUT     /api/v1/:domId/templates/:tplId    controllers.domain.TemplateController.update(domId: String, tplId: String)
-DELETE  /api/v1/:domId/templates/:tplId    controllers.domain.TemplateController.delete(domId: String, tplId: String)
+POST    /api/v1/:domIdn/templates                controllers.domain.TemplateController.create(domIdn: String)
+GET     /api/v1/:domIdn/templates/:tplId/:env    controllers.domain.TemplateController.find(domIdn: String, tplId: String, env: String)
+PUT     /api/v1/:domIdn/templates/:tplId/:env    controllers.domain.TemplateController.update(domIdn: String, tplId: String, env: String)
+DELETE  /api/v1/:domIdn/templates/:tplId/:env    controllers.domain.TemplateController.delete(domIdn: String, tplId: String, env: String)
 
 # Messages
-POST    /api/v1/:domId/messages           controllers.domain.MessageController.create(domId: String)
-GET     /api/v1/:domId/messages/:msgId    controllers.domain.MessageController.find(domId: String, msgId: String)
-PUT     /api/v1/:domId/messages/:msgId    controllers.domain.MessageController.update(domId: String, msgId: String)
-DELETE  /api/v1/:domId/messages/:msgId    controllers.domain.MessageController.delete(domId: String, msgId: String)
+POST    /api/v1/:domIdn/messages           controllers.domain.MessageController.create(domIdn: String)
+GET     /api/v1/:domIdn/messages/:msgId    controllers.domain.MessageController.find(domIdn: String, msgId: String)
+PUT     /api/v1/:domIdn/messages/:msgId    controllers.domain.MessageController.update(domIdn: String, msgId: String)
+DELETE  /api/v1/:domIdn/messages/:msgId    controllers.domain.MessageController.delete(domIdn: String, msgId: String)
 
 
 

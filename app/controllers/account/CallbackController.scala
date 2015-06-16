@@ -59,8 +59,6 @@ class CallbackController(implicit inj: Injector) extends Controller with Injecta
 
     }
     
-    Future.successful(NotFound("invalid action type"))
-    
   }
   
   def confirmEmail(cwt: CallbackWebToken)(implicit reauest: Request[AnyContent]): Future[Result] = {

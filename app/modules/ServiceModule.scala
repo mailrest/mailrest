@@ -14,11 +14,17 @@ import com.mailrest.maildal.secur.AccountWebToken
 import com.mailrest.maildal.secur.TokenManager
 import services.DomainService
 import services.DomainServiceImpl
+import services.MessageService
+import services.TemplateServiceImpl
+import services.TemplateService
+import services.MessageServiceImpl
 
 class ServiceModule extends Module {
   
     bind [AccountService] to new AccountServiceImpl
     bind [DomainService] to new DomainServiceImpl
+    bind [TemplateService] to new TemplateServiceImpl
+    bind [MessageService] to new MessageServiceImpl
         
     bind [ExecutionContext] to ExecutionContext.global
 }

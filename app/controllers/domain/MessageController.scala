@@ -4,35 +4,39 @@
  */
 package controllers.domain
 
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.reflect.runtime.universe
 import play.api.mvc.Controller
 import scaldi.Injector
 import scala.concurrent.Future
+import services.MessageService
 
-class TemplateController(implicit inj: Injector) extends AbstractDomainController {
+class MessageController(implicit inj: Injector) extends AbstractDomainController {
   
-  def create(domId: String) = domainAction(domId).async { 
+  val messageService = inject [MessageService]
+
+  def create(domIdn: String) = domainAction(domIdn).async { 
      implicit request => {
       
       Future.successful { Ok("Created template: ") }
     }
   }
   
-  def find(domId: String, msgId: String) = domainAction(domId).async { 
+  def find(domIdn: String, msgId: String) = domainAction(domIdn).async { 
      implicit request => {
       
       Future.successful { Ok("Created template: ") }
     }
   }
   
-  def update(domId: String, msgId: String) = domainAction(domId).async { 
+  def update(domIdn: String, msgId: String) = domainAction(domIdn).async { 
      implicit request => {
       
       Future.successful { Ok("Created template: ") }
     }
   }
   
-  def delete(domId: String, msgId: String) = domainAction(domId).async { 
+  def delete(domIdn: String, msgId: String) = domainAction(domIdn).async { 
      implicit request => {
       
       Future.successful { Ok("Created template: ") }
