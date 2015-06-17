@@ -91,7 +91,7 @@ class AccountController(implicit inj: Injector) extends AbstractAccountControlle
           newAccount.team.getOrElse(""), 
           newAccount.timezone.getOrElse(""));
       
-      future.map(id => Ok("Created account: " + id))
+      future.map(id => Ok(id))
     }
   }
 

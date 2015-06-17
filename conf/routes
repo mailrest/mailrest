@@ -40,9 +40,7 @@ DELETE  /api/v1/:domIdn/templates/:tplId/:env    controllers.domain.TemplateCont
 # Messages
 POST    /api/v1/:domIdn/messages           controllers.domain.MessageController.create(domIdn: String)
 GET     /api/v1/:domIdn/messages/:msgId    controllers.domain.MessageController.find(domIdn: String, msgId: String)
-PUT     /api/v1/:domIdn/messages/:msgId    controllers.domain.MessageController.update(domIdn: String, msgId: String)
 DELETE  /api/v1/:domIdn/messages/:msgId    controllers.domain.MessageController.delete(domIdn: String, msgId: String)
-
 
 
 # Map static resources from the /public folder to the /assets URL path
