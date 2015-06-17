@@ -21,6 +21,9 @@ import scaldi.Injector
 import services.MessageService
 import services.NewMessageBean
 import utils.ScalaHelper
+import java.util.Collections
+import scala.collection.JavaConverters
+import scala.collection.JavaConversions
 
 class MessageController(implicit inj: Injector) extends AbstractDomainController {
   
@@ -66,16 +69,19 @@ class MessageController(implicit inj: Injector) extends AbstractDomainController
       "to" -> nonEmptyText,
       "cc" -> optional(text),
       "bcc" -> optional(text),    
-      "templateId" -> optional(text),
-      "userVariables" -> optional(text),    
+      "templateId" -> optional(text),   
       "subject" -> optional(text), 
       "textBody" -> optional(text), 
       "htmlBody" -> optional(text)
      )(NewMessageForm.apply)(NewMessageForm.unapply)
   )    
   
-  def parseMap(input: String): java.util.Map[String, String] = {
-     new HashMap[String, String]()
+  def parseVariables(input: Map[String, Seq[String]]): Map[String, String] = {
+   
+    input
+    .filter( k => k._1.startsWith("userVariable.") )
+    .map( k => Tuple2(k._1.substring(13), k._2.head))
+    
   }
   
   def create(domIdn: String) = domainAction(domIdn).async { 
@@ -83,6 +89,9 @@ class MessageController(implicit inj: Injector) extends AbstractDomainController
       
        val form = newMessageForm.bindFromRequest.get  
 
+       val formEncoded = request.body.asFormUrlEncoded
+       val userVariables = formEncoded.fold(Map[String, String]())(parseVariables)
+   
        val msg = new NewMessageBean(
            request.domainInfo.get.domainId,
            request.domainInfo.get.accountId,
@@ -94,7 +103,7 @@ class MessageController(implicit inj: Injector) extends AbstractDomainController
            form.cc.getOrElse(""),
            form.bcc.getOrElse(""),
            form.templateId.getOrElse(""),
-           parseMap(form.userVariables.getOrElse("")),
+           JavaConversions.mapAsJavaMap(userVariables),
            form.subject.getOrElse(""),
            form.textBody.getOrElse(""),
            form.htmlBody.getOrElse("")
@@ -129,11 +138,12 @@ class MessageController(implicit inj: Injector) extends AbstractDomainController
 
 }
 
+case class UserVariableForm(name: String, value: String)
 
 case class NewMessageForm(
   deliveryAt: Option[Long], publicId: Option[String],    
   from: Option[String], to: String, cc: Option[String], bcc: Option[String],    
-  templateId: Option[String], userVariables: Option[String],    
+  templateId: Option[String],   
   subject: Option[String], textBody: Option[String], htmlBody: Option[String]
 ) 
 

@@ -8,39 +8,39 @@ GET     /                              controllers.Application.index
 # Account controllers
 
 # Accounts
-POST    /api/v1/accounts               controllers.account.AccountController.create
-GET     /api/v1/accounts/:accId        controllers.account.AccountController.find(accId: String)
-DELETE  /api/v1/accounts/:accId        controllers.account.AccountController.delete(accId: String)
-GET     /api/v1/accounts/:accId/log    controllers.account.AccountLogController.find(accId: String, limit: Option[Int])
+POST    /api/v1.0/accounts               controllers.account.AccountController.create
+GET     /api/v1.0/accounts/:accId        controllers.account.AccountController.find(accId: String)
+DELETE  /api/v1.0/accounts/:accId        controllers.account.AccountController.delete(accId: String)
+GET     /api/v1.0/accounts/:accId/log    controllers.account.AccountLogController.find(accId: String, limit: Option[Int])
 
 # Account Other
-POST    /api/v1/callbacks/:link                controllers.account.CallbackController.callback(link: String)
-GET     /api/v1/users/:userId                  controllers.account.UserController.find(userId: String)
+POST    /api/v1.0/callbacks/:link                controllers.account.CallbackController.callback(link: String)
+GET     /api/v1.0/users/:userId                  controllers.account.UserController.find(userId: String)
 
 # Account Users
-POST    /api/v1/accounts/:accId/users              controllers.account.AccountUserController.create(accId: String)
-GET     /api/v1/accounts/:accId/users/:usrId       controllers.account.AccountUserController.find(accId: String, usrId: String)
-PUT     /api/v1/accounts/:accId/users/:usrId       controllers.account.AccountUserController.update(accId: String, usrId: String)
-DELETE  /api/v1/accounts/:accId/users/:usrId       controllers.account.AccountUserController.delete(accId: String, usrId: String)
+POST    /api/v1.0/accounts/:accId/users              controllers.account.AccountUserController.create(accId: String)
+GET     /api/v1.0/accounts/:accId/users/:usrId       controllers.account.AccountUserController.find(accId: String, usrId: String)
+PUT     /api/v1.0/accounts/:accId/users/:usrId       controllers.account.AccountUserController.update(accId: String, usrId: String)
+DELETE  /api/v1.0/accounts/:accId/users/:usrId       controllers.account.AccountUserController.delete(accId: String, usrId: String)
 
 # Account Domains
-GET     /api/v1/accounts/:accId/domains             controllers.account.AccountDomainController.findAll(accId: String)
-POST    /api/v1/accounts/:accId/domains             controllers.account.AccountDomainController.create(accId: String)
-GET     /api/v1/accounts/:accId/domains/:domIdn     controllers.account.AccountDomainController.find(accId: String, domIdn: String)
-DELETE  /api/v1/accounts/:accId/domains/:domIdn     controllers.account.AccountDomainController.delete(accId: String, domIdn: String)
+GET     /api/v1.0/accounts/:accId/domains             controllers.account.AccountDomainController.findAll(accId: String)
+POST    /api/v1.0/accounts/:accId/domains             controllers.account.AccountDomainController.create(accId: String)
+GET     /api/v1.0/accounts/:accId/domains/:domIdn     controllers.account.AccountDomainController.find(accId: String, domIdn: String)
+DELETE  /api/v1.0/accounts/:accId/domains/:domIdn     controllers.account.AccountDomainController.delete(accId: String, domIdn: String)
 
 # Domain controllers
 
 # Templates
-POST    /api/v1/:domIdn/templates                controllers.domain.TemplateController.create(domIdn: String)
-GET     /api/v1/:domIdn/templates/:tplId/:env    controllers.domain.TemplateController.find(domIdn: String, tplId: String, env: String)
-PUT     /api/v1/:domIdn/templates/:tplId/:env    controllers.domain.TemplateController.update(domIdn: String, tplId: String, env: String)
-DELETE  /api/v1/:domIdn/templates/:tplId/:env    controllers.domain.TemplateController.delete(domIdn: String, tplId: String, env: String)
+POST    /api/v1.0/:domIdn/templates                controllers.domain.TemplateController.create(domIdn: String)
+GET     /api/v1.0/:domIdn/templates/:tplId/:env    controllers.domain.TemplateController.find(domIdn: String, tplId: String, env: String)
+PUT     /api/v1.0/:domIdn/templates/:tplId/:env    controllers.domain.TemplateController.update(domIdn: String, tplId: String, env: String)
+DELETE  /api/v1.0/:domIdn/templates/:tplId/:env    controllers.domain.TemplateController.delete(domIdn: String, tplId: String, env: String, deployedAt: Option[Long])
 
 # Messages
-POST    /api/v1/:domIdn/messages           controllers.domain.MessageController.create(domIdn: String)
-GET     /api/v1/:domIdn/messages/:msgId    controllers.domain.MessageController.find(domIdn: String, msgId: String)
-DELETE  /api/v1/:domIdn/messages/:msgId    controllers.domain.MessageController.delete(domIdn: String, msgId: String)
+POST    /api/v1.0/:domIdn/messages           controllers.domain.MessageController.create(domIdn: String)
+GET     /api/v1.0/:domIdn/messages/:msgId    controllers.domain.MessageController.find(domIdn: String, msgId: String)
+DELETE  /api/v1.0/:domIdn/messages/:msgId    controllers.domain.MessageController.delete(domIdn: String, msgId: String)
 
 
 # Map static resources from the /public folder to the /assets URL path
