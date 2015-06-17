@@ -67,7 +67,7 @@ class CallbackController(implicit inj: Injector) extends Controller with Injecta
     
     val future = accountService.confirmUser(cwt, updatePassword.newPassword)
     
-    future.map(rs => Ok("Confirmed user: " + cwt.getUserId))
+    future.map(rs => Ok(cwt.getUserId))
     
   }
 
@@ -77,7 +77,7 @@ class CallbackController(implicit inj: Injector) extends Controller with Injecta
 
     val future = accountService.updatePassword(cwt, updatePassword.newPassword)
     
-    future.map(rs => Ok("Updated password for: " + cwt.getUserId))
+    future.map(rs => Ok(cwt.getUserId))
     
   }
 
