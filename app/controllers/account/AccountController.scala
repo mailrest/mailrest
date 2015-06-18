@@ -53,8 +53,7 @@ class AccountController(implicit inj: Injector) extends AbstractAccountControlle
           Json.obj(
               "accountId" -> account.accountId,
               "createdAt" -> account.createdAt,
-              "organization" -> account.organization,
-              "team" -> account.team,
+              "businessName" -> account.businessName,
               "timezone" -> account.timezone,
               "users" -> Json.arr(ScalaHelper.asSeq(account.users.values))
           )
@@ -66,11 +65,11 @@ class AccountController(implicit inj: Injector) extends AbstractAccountControlle
       "user" -> mapping (
           "userId" -> nonEmptyText,
           "email" -> email,
+          "team" -> optional(text),
           "firstName" -> optional(text), 
           "lastName" -> optional(text)
           )(NewUserForm.apply)(NewUserForm.unapply),
-      "organization" -> optional(text),
-      "team" -> optional(text),
+      "businessName" -> optional(text),
       "timezone" -> optional(text)
      )(NewAccountForm.apply)(NewAccountForm.unapply)
   )
@@ -83,12 +82,12 @@ class AccountController(implicit inj: Injector) extends AbstractAccountControlle
       
       val newUser = new NewUser(newAccount.user.userId, 
           newAccount.user.email, 
+          newAccount.user.team.getOrElse(""),
           newAccount.user.firstName.getOrElse(""), 
           newAccount.user.lastName.getOrElse(""))
       
       val future = accountService.createAccount(newUser, 
-          newAccount.organization.getOrElse(""), 
-          newAccount.team.getOrElse(""), 
+          newAccount.businessName.getOrElse(""), 
           newAccount.timezone.getOrElse(""));
       
       future.map(id => Ok(id))
@@ -135,8 +134,8 @@ class AccountController(implicit inj: Injector) extends AbstractAccountControlle
   
 }
 
-case class NewUser(userId: String, email: String, firstName: String, lastName: String, permission: UserPermission = UserPermission.ADMIN, confirmed: Boolean = false) extends AccountUser
+case class NewUser(userId: String, email: String, team: String, firstName: String, lastName: String, permission: UserPermission = UserPermission.ADMIN, confirmed: Boolean = false) extends AccountUser
 
-case class NewUserForm(userId: String, email: String, firstName: Option[String], lastName: Option[String]) 
+case class NewUserForm(userId: String, email: String, team: Option[String], firstName: Option[String], lastName: Option[String]) 
 
-case class NewAccountForm(user: NewUserForm, organization: Option[String], team: Option[String], timezone: Option[String])
+case class NewAccountForm(user: NewUserForm, businessName: Option[String], timezone: Option[String])

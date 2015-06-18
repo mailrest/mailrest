@@ -14,8 +14,13 @@ DELETE  /api/v1.0/accounts/:accId        controllers.account.AccountController.d
 GET     /api/v1.0/accounts/:accId/log    controllers.account.AccountLogController.find(accId: String, limit: Option[Int])
 
 # Account Other
-POST    /api/v1.0/callbacks/:link                controllers.account.CallbackController.callback(link: String)
-GET     /api/v1.0/users/:userId                  controllers.account.UserController.find(userId: String)
+POST    /api/v1.0/callbacks              controllers.account.CallbackController.callback
+
+# Auth tokens
+GET     /api/v1.0/tokens                         controllers.account.TokenController.find(userId: Option[String])
+POST    /api/v1.0/tokens                         controllers.account.TokenController.create
+PUT     /api/v1.0/token/:jwt                     controllers.account.TokenController.extend(jwt: String)
+DELETE  /api/v1.0/token/:jwt                     controllers.account.TokenController.remove(jwt: String)
 
 # Account Users
 POST    /api/v1.0/accounts/:accId/users              controllers.account.AccountUserController.create(accId: String)

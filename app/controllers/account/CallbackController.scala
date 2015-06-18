@@ -35,13 +35,15 @@ class CallbackController(implicit inj: Injector) extends Controller with Injecta
   }
   
   
-  def callback(jwtLink: String) = Action.async { 
+  def callback = Action.async { 
     
      implicit request => {
        
-       decodeJwtLink(jwtLink) match {
+       val form = callbackForm.bindFromRequest.get
+       
+       decodeJwtLink(form.jwtLink) match {
          
-         case Some(c) => dispatch(c)
+         case Some(c) => dispatch(c, form)
          case None => Future.successful(NotFound("invalid token"))
          
        }
@@ -50,43 +52,40 @@ class CallbackController(implicit inj: Injector) extends Controller with Injecta
   }
   
   
-  def dispatch(cwt: CallbackWebToken)(implicit reauest: Request[AnyContent]): Future[Result] = {
+  def dispatch(cwt: CallbackWebToken, form: CallbackForm)(implicit reauest: Request[AnyContent]): Future[Result] = {
     
     cwt.getAction match {
     
-      case CallbackAction.CONFIRM_EMAIL => confirmEmail(cwt)
-      case CallbackAction.UPDATE_PASSWORD => updatePassword(cwt)
+      case CallbackAction.CONFIRM_EMAIL => confirmEmail(cwt, form)
+      case CallbackAction.UPDATE_PASSWORD => updatePassword(cwt, form)
 
     }
     
   }
   
-  def confirmEmail(cwt: CallbackWebToken)(implicit reauest: Request[AnyContent]): Future[Result] = {
+  def confirmEmail(cwt: CallbackWebToken, form: CallbackForm)(implicit reauest: Request[AnyContent]): Future[Result] = {
     
-    val updatePassword = passwordForm.bindFromRequest.get
-    
-    val future = accountService.confirmUser(cwt, updatePassword.newPassword)
+    val future = accountService.confirmUser(cwt, form.newPassword)
     
     future.map(rs => Ok(cwt.getUserId))
     
   }
 
-  def updatePassword(cwt: CallbackWebToken)(implicit reauest: Request[AnyContent]): Future[Result] = {
+  def updatePassword(cwt: CallbackWebToken, form: CallbackForm)(implicit reauest: Request[AnyContent]): Future[Result] = {
     
-    val updatePassword = passwordForm.bindFromRequest.get
-
-    val future = accountService.updatePassword(cwt, updatePassword.newPassword)
+    val future = accountService.updatePassword(cwt, form.newPassword)
     
     future.map(rs => Ok(cwt.getUserId))
     
   }
 
-  val passwordForm = Form(
+  val callbackForm = Form(
     mapping(
+      "jwtLink" -> nonEmptyText, 
       "newPassword" -> nonEmptyText
-     )(PasswordForm.apply)(PasswordForm.unapply)
+     )(CallbackForm.apply)(CallbackForm.unapply)
   )
   
-  case class PasswordForm(newPassword: String)
+  case class CallbackForm(jwtLink: String, newPassword: String)
   
 }

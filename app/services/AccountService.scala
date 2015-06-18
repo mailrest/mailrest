@@ -33,7 +33,7 @@ import scala.collection.JavaConversions
 
 trait AccountService {
 
-  def createAccount(user: AccountUser, organization: String, team: String, timezone: String): Future[String]
+  def createAccount(user: AccountUser, businessName: String, timezone: String): Future[String]
   def findAccount(accId: String): Future[Option[Account]]
   def dropAccount(accId: String): Future[Boolean]
   
@@ -43,7 +43,6 @@ trait AccountService {
   def findAccountUser(accId: String, userId: String): Future[Option[AccountUser]]
   def removeUser(accId: String, userId: String): Future[Boolean]
   
-  def findUser(userId: String): Future[Option[User]]
   def confirmUser(cwt: CallbackWebToken, newPassword: String): Future[Boolean]
   def updatePassword(cwt: CallbackWebToken, newPassword: String): Future[Boolean]
   
@@ -67,11 +66,11 @@ class AccountServiceImpl(implicit inj: Injector, xc: ExecutionContext = Executio
   val accountTokenManager = inject [TokenManager[AccountWebToken]]
   val callbackTokenManager = inject [TokenManager[CallbackWebToken]]
   
-  def createAccount(user: AccountUser, organization: String, team: String, timezone: String): Future[String] = {
+  def createAccount(user: AccountUser, businessName: String, timezone: String): Future[String] = {
     
-    logger.info(s"begin createAccount for $organization")
+    logger.info(s"createAccount for $businessName")
     
-    accountRepository.createAccount(user, organization, team, timezone)
+    accountRepository.createAccount(user, businessName, timezone)
     .map(t => t._2)
     .map(accId => sendConfirmationEmail(accId, user.userId(), user.email()))
 
@@ -124,11 +123,6 @@ class AccountServiceImpl(implicit inj: Injector, xc: ExecutionContext = Executio
     
   }
   
-  def findUser(userId: String): Future[Option[User]] = {
-    
-    userRepository.findUser(userId).map(ScalaHelper.asOption)
-    
-  }
   
   def sendConfirmationEmail(accountId: String, userId: String, email: String): String = {
     

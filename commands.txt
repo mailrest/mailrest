@@ -2,5 +2,5 @@ curl -i -X POST --data "organization=Noorq&team=RnD&timezone=" http://localhost:
 curl -i -X POST --data "organization=Noorq&team=RnD&timezone=" http://localhost:9000/api/v1/system/accounts -H "X-Auth-Token: system"
 
 
-curl -i -X POST --data "user.userId=alex&user.email=a@shvid.com&organization=Noorq&team=RnD" http://localhost:9000/api/v1.0/accounts
+curl -i -X POST --data "user.userId=alex&user.email=a@shvid.com&businessName=Noorq&user.team=RnD" http://localhost:9000/api/v1.0/accounts
 curl -i -X POST --data "newPassword=123" http://localhost:9000/api/v1.0/callbacks/{LINK_ID}
