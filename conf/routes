@@ -47,6 +47,31 @@ POST    /api/v1.0/:domIdn/messages           controllers.domain.MessageControlle
 GET     /api/v1.0/:domIdn/messages/:msgId    controllers.domain.MessageController.find(domIdn: String, msgId: String)
 DELETE  /api/v1.0/:domIdn/messages/:msgId    controllers.domain.MessageController.delete(domIdn: String, msgId: String)
 
+# Message Log
+GET     /api/v1.0/:domIdn/logs               controllers.domain.MessageLogController.find(domIdn: String, beforeMls: Option[Long], limit: Option[Int])
+
+# Message Stats
+GET     /api/v1.0/:domIdn/stats              controllers.domain.MessageStatController.find(domIdn: String, beforeMls: Option[Long], limit: Option[Int])
+
+# Message Boxes
+GET     /api/v1.0/:domIdn/boxes              controllers.domain.BoxController.findAll(domIdn: String)
+POST    /api/v1.0/:domIdn/boxes              controllers.domain.BoxController.create(domIdn: String)
+GET     /api/v1.0/:domIdn/boxes/:boxId       controllers.domain.BoxController.find(domIdn: String, boxId: String)
+DELETE  /api/v1.0/:domIdn/boxes/:boxId       controllers.domain.BoxController.delete(domIdn: String, boxId: String)
+
+# Folders
+GET     /api/v1.0/:domIdn/boxes/:boxId/folders          controllers.box.FolderController.findAll(domIdn: String, boxId: String)
+POST    /api/v1.0/:domIdn/boxes/:boxId/folders          controllers.box.FolderController.create(domIdn: String, boxId: String)
+GET     /api/v1.0/:domIdn/boxes/:boxId/folders/:folder  controllers.box.FolderController.find(domIdn: String, boxId: String)
+DELETE  /api/v1.0/:domIdn/boxes/:boxId/folders/:folder  controllers.box.FolderController.delete(domIdn: String, boxId: String, folder: String)
+
+# Folder MessageRefs
+GET     /api/v1.0/:domIdn/boxes/:boxId/folders/:folder/messages         controllers.box.MessageRefController.findAll(domIdn: String, boxId: String, folder: String)
+POST    /api/v1.0/:domIdn/boxes/:boxId/folders/:folder/messages         controllers.box.MessageRefController.create(domIdn: String, boxId: String, folder: String)
+GET     /api/v1.0/:domIdn/boxes/:boxId/folders/:folder/messages/:msgId  controllers.box.MessageRefController.find(domIdn: String, boxId: String, folder: String, msgId: String)
+PUT     /api/v1.0/:domIdn/boxes/:boxId/folders/:folder/messages/:msgId  controllers.box.MessageRefController.update(domIdn: String, boxId: String, folder: String, msgId: String)
+DELETE  /api/v1.0/:domIdn/boxes/:boxId/folders/:folder/messages/:msgId  controllers.box.MessageRefController.delete(domIdn: String, boxId: String, folder: String, msgId: String)
+
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file                 controllers.Assets.at(path="/public", file)

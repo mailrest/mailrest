@@ -27,7 +27,6 @@ class DalModule extends Module {
   
   // Domain
 
-  bind [DomainRepository] to new RepositoryConfig(dalConf) with DomainRepository
   bind [DomainOwnerRepository] to new RepositoryConfig(dalConf) with DomainOwnerRepository
   bind [TemplateRepository] to new RepositoryConfig(dalConf) with TemplateRepository
   bind [DomainVerificationQueueRepository] to new RepositoryConfig(dalConf) with DomainVerificationQueueRepository
