@@ -31,10 +31,10 @@ class TemplateServiceImpl(implicit inj: Injector, xc: ExecutionContext = Executi
   def update(id: TemplateId, template: TemplateBean): Future[Boolean] = {
     
     if (id.env == DefaultEnvironments.PROD.getName) {
-      templateRepository.deployTemplate(id.domainId, id.accountId, id.templateId, template).map { x => x.wasApplied() }
+      templateRepository.deployTemplate(id.accountId, id.domainId, id.templateId, template).map { x => x.wasApplied() }
     }
     else {
-      templateRepository.updateTestingTemplate(id.domainId, id.accountId, id.templateId, id.env,
+      templateRepository.updateTestingTemplate(id.accountId, id.domainId, id.templateId, id.env,
           template).map { x => x.wasApplied() }
     }
     
@@ -43,7 +43,7 @@ class TemplateServiceImpl(implicit inj: Injector, xc: ExecutionContext = Executi
   def find(id: TemplateId): Future[Option[TemplateInfo]] = {
     
     if (id.env == DefaultEnvironments.PROD.getName) {
-      templateRepository.findDeployedTemplate(id.domainId, id.accountId, id.templateId).map { x => {
+      templateRepository.findDeployedTemplate(id.accountId, id.domainId, id.templateId).map { x => {
         
       if (x.isPresent()) {
         Some(new TemplateInfo(x.get._2.getTime, x.get._1))
@@ -56,7 +56,7 @@ class TemplateServiceImpl(implicit inj: Injector, xc: ExecutionContext = Executi
         
     }
     else {
-      templateRepository.findTestingTemplate(id.domainId, id.accountId, id.templateId, id.env).map { x => {
+      templateRepository.findTestingTemplate(id.accountId, id.domainId, id.templateId, id.env).map { x => {
         
       if (x.isPresent()) {
         Some(new TemplateInfo(0, x.get._1))
@@ -73,10 +73,10 @@ class TemplateServiceImpl(implicit inj: Injector, xc: ExecutionContext = Executi
   def delete(id: TemplateId, deployedAt: Long): Future[Boolean] = {
     
     if (id.env == DefaultEnvironments.PROD.getName) {
-      templateRepository.rollbackTemplate(id.domainId, id.accountId, id.templateId, new Date(deployedAt)).map { x => x.wasApplied() }
+      templateRepository.rollbackTemplate(id.accountId, id.domainId, id.templateId, new Date(deployedAt)).map { x => x.wasApplied() }
     }
     else {
-      templateRepository.deleteTestingTemplate(id.domainId, id.accountId, id.templateId, id.env).map { x => x.wasApplied() }
+      templateRepository.deleteTestingTemplate(id.accountId, id.domainId, id.templateId, id.env).map { x => x.wasApplied() }
     }
     
   }
@@ -86,7 +86,7 @@ class TemplateServiceImpl(implicit inj: Injector, xc: ExecutionContext = Executi
 
 case class TemplateInfo(deployedAt: Long, template: Template)
 
-case class TemplateId(domainId: String, accountId: String, templateId: String, env: String)
+case class TemplateId(accountId: String, domainId: String, templateId: String, env: String)
 
 case class TemplateBean(
 

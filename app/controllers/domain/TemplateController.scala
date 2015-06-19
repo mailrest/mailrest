@@ -27,7 +27,7 @@ class TemplateController(implicit inj: Injector) extends AbstractDomainControlle
   implicit val templateWrites = new Writes[TemplateInfo] {
       override def writes(t: TemplateInfo): JsValue = {
           Json.obj(
-              "name" -> t.template.name,
+              "displayName" -> t.template.displayName,
               "description" -> t.template.description,
               "engine" -> t.template.engine.name,
               "fromRecipients" -> t.template.fromRecipients,
@@ -63,8 +63,8 @@ class TemplateController(implicit inj: Injector) extends AbstractDomainControlle
 
   def makeId(request: DomainRequest[AnyContent], templateId: String, env: String): TemplateId = {
      new TemplateId(
-          request.domainInfo.get.domainId,
           request.domainInfo.get.accountId,
+          request.domainInfo.get.domainId,
           templateId,
           env
      ) 
