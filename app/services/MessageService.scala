@@ -18,9 +18,9 @@ trait MessageService {
 
   def create(msg: NewMessageBean): Future[String]
   
-  def find(msgId: String, domainId: String, accountId: String): Future[Option[Message]]
+  def find(msgId: String, accountId: String, domainId: String): Future[Option[Message]]
   
-  def delete(msgId: String, domainId: String, accountId: String): Future[Boolean]
+  def delete(msgId: String, accountId: String, domainId: String): Future[Boolean]
   
 }
 
@@ -42,22 +42,22 @@ class MessageServiceImpl(implicit inj: Injector, xc: ExecutionContext = Executio
      messageQueueRepository.enqueueMessage(0, msgId, deliveryAt, 0).map { x => msgId }
   }
   
-  def find(msgId: String, domainId: String, accountId: String): Future[Option[Message]] = {
+  def find(msgId: String, accountId: String, domainId: String): Future[Option[Message]] = {
     
-    messageRepository.findMessage(msgId, domainId, accountId).map(ScalaHelper.asOption)
+    messageRepository.findMessage(msgId, accountId, domainId).map(ScalaHelper.asOption)
     
   }
   
-  def delete(msgId: String, domainId: String, accountId: String): Future[Boolean] = {
+  def delete(msgId: String, accountId: String, domainId: String): Future[Boolean] = {
     
-    messageRepository.deleteMessage(msgId, domainId, accountId).map { x => x.wasApplied() }
+    messageRepository.deleteMessage(msgId, accountId, domainId).map { x => x.wasApplied() }
     
   }
   
 }
 
 case class NewMessageBean(
-  domainId: String, accountId: String,  
+  accountId: String, domainId: String,  
   messageType: MessageType,
   deliveryAt: Date, publicId: String,    
   from: String, to: String, cc: String, bcc: String,    
