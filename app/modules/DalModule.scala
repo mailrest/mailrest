@@ -21,12 +21,12 @@ class DalModule extends Module {
   // Account
   
   bind [AccountRepository] to new RepositoryConfig(dalConf) with AccountRepository
-  bind [AccountDomainRepository] to new RepositoryConfig(dalConf) with AccountDomainRepository
   bind [AccountLogRepository] to new RepositoryConfig(dalConf) with AccountLogRepository
   bind [UserRepository] to new RepositoryConfig(dalConf) with UserRepository  
   
   // Domain
 
+  bind [DomainRepository] to new RepositoryConfig(dalConf) with DomainRepository
   bind [DomainOwnerRepository] to new RepositoryConfig(dalConf) with DomainOwnerRepository
   bind [TemplateRepository] to new RepositoryConfig(dalConf) with TemplateRepository
   bind [DomainVerificationQueueRepository] to new RepositoryConfig(dalConf) with DomainVerificationQueueRepository

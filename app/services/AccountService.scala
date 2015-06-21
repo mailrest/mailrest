@@ -7,7 +7,6 @@ package services
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 import com.mailrest.maildal.model.AccountUser
-import com.mailrest.maildal.repository.AccountDomainRepository
 import com.mailrest.maildal.repository.AccountLogRepository
 import com.mailrest.maildal.repository.AccountRepository
 import com.mailrest.maildal.repository.UserRepository
@@ -24,12 +23,13 @@ import utils.ScalaHelper
 import com.mailrest.maildal.model.Account
 import com.mailrest.maildal.model.AccountLog
 import com.mailrest.maildal.util.DomainId
-import com.mailrest.maildal.model.AccountDomain
 import com.mailrest.maildal.repository.DomainOwnerRepository
 import com.mailrest.maildal.model.DomainVerificationEvent
 import java.util.Date
 import com.mailrest.maildal.model.DomainVerificationStatus
 import scala.collection.JavaConversions
+import com.mailrest.maildal.repository.DomainRepository
+import com.mailrest.maildal.model.Domain
 
 trait AccountService {
 
@@ -47,8 +47,8 @@ trait AccountService {
   def updatePassword(cwt: CallbackWebToken, newPassword: String): Future[Boolean]
   
   
-  def findDomains(accId: String): Future[Seq[AccountDomain]]
-  def findDomain(accId: String, domIdn: String): Future[Option[AccountDomain]]
+  def findDomains(accId: String): Future[Seq[Domain]]
+  def findDomain(accId: String, domIdn: String): Future[Option[Domain]]
   def addDomain(accId: String, domIdn: String): Future[Boolean]
   def deleteDomain(accId: String, domIdn: String): Future[Boolean]
   
@@ -57,7 +57,7 @@ trait AccountService {
 class AccountServiceImpl(implicit inj: Injector, xc: ExecutionContext = ExecutionContext.global) extends AccountService with Injectable with LazyLogging {
  
   val accountRepository = inject [AccountRepository]
-  val accountDomainRepository = inject [AccountDomainRepository]
+  val domainRepository = inject [DomainRepository]
   val accountLogRepository = inject [AccountLogRepository]
   val userRepository = inject [UserRepository]
   
@@ -178,18 +178,18 @@ class AccountServiceImpl(implicit inj: Injector, xc: ExecutionContext = Executio
   }
   
     
-  def findDomains(accId: String): Future[Seq[AccountDomain]] = {
+  def findDomains(accId: String): Future[Seq[Domain]] = {
     
-    accountDomainRepository.findDomains(accId).map(ScalaHelper.toSeq)
+    domainRepository.findDomains(accId).map(ScalaHelper.toSeq)
     
   }
   
   
-  def findDomain(accId: String, domIdn: String): Future[Option[AccountDomain]] = {
+  def findDomain(accId: String, domIdn: String): Future[Option[Domain]] = {
     
     val domainId = DomainId.INSTANCE.fromDomainIdn(domIdn);
         
-    accountDomainRepository.findAccountDomain(accId, domainId).map(ScalaHelper.asOption)
+    domainRepository.findDomain(accId, domainId).map(ScalaHelper.asOption)
     
   }
   
@@ -198,7 +198,7 @@ class AccountServiceImpl(implicit inj: Injector, xc: ExecutionContext = Executio
     
     val domainId = DomainId.INSTANCE.fromDomainIdn(domIdn);
     
-    accountDomainRepository.addAccountDomain(accId, domainId, domIdn).map { x => x.wasApplied() }
+    domainRepository.addDomain(accId, domainId, domIdn).map { x => x.wasApplied() }
     
   }  
   
@@ -206,9 +206,9 @@ class AccountServiceImpl(implicit inj: Injector, xc: ExecutionContext = Executio
       
     val domainId = DomainId.INSTANCE.fromDomainIdn(domIdn);
     
-    accountDomainRepository.dropAccountDomain(accId, domainId).map { x => x.wasApplied() }      
+    domainRepository.dropDomain(accId, domainId).map { x => x.wasApplied() }      
     
-    accountDomainRepository.getVerificationEvents(accId, domainId).map(ScalaHelper.asOption).flatMap { x => {
+    domainRepository.getVerificationEvents(accId, domainId).map(ScalaHelper.asOption).flatMap { x => {
       
       x match {
         
@@ -250,7 +250,7 @@ class AccountServiceImpl(implicit inj: Injector, xc: ExecutionContext = Executio
   
   def deleteAccountDomain(accId: String, domainId: String): Future[Boolean] = {
     
-     accountDomainRepository.dropAccountDomain(accId, domainId).map { x => x.wasApplied() }    
+     domainRepository.dropDomain(accId, domainId).map { x => x.wasApplied() }    
   }
   
 }

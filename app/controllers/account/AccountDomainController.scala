@@ -14,9 +14,9 @@ import services.AccountService
 import play.api.libs.json.Json
 import play.api.libs.json.Writes
 import play.api.libs.json.JsValue
-import com.mailrest.maildal.model.AccountDomain
 import utils.ScalaHelper
 import com.mailrest.maildal.model.DomainVerificationEvent
+import com.mailrest.maildal.model.Domain
 
 class AccountDomainController(implicit inj: Injector) extends AbstractAccountController {
 
@@ -32,8 +32,8 @@ class AccountDomainController(implicit inj: Injector) extends AbstractAccountCon
       }
   }   
   
-  implicit val accountDomainWrites = new Writes[AccountDomain] {
-      override def writes(ad: AccountDomain): JsValue = {
+  implicit val accountDomainWrites = new Writes[Domain] {
+      override def writes(ad: Domain): JsValue = {
           Json.obj(
               "accountId" -> ad.accountId,
               "domainId" -> ad.domainId,

@@ -7,8 +7,8 @@ import scala.concurrent.ExecutionContext
 import scaldi.Injector
 import com.mailrest.maildal.repository.DomainOwnerRepository
 import scala.concurrent.Future
-import com.mailrest.maildal.repository.AccountDomainRepository
 import com.mailrest.maildal.util.DomainId
+import com.mailrest.maildal.repository.DomainRepository
 
 trait DomainService {
 
@@ -18,12 +18,12 @@ trait DomainService {
 
 class DomainServiceImpl(implicit inj: Injector, xc: ExecutionContext = ExecutionContext.global) extends DomainService with Injectable with LazyLogging {
 
-  val accountDomainRepository = inject [AccountDomainRepository]
+  val domainRepository = inject [DomainRepository]
   val domainOwnerRepository = inject [DomainOwnerRepository]
   
   def lookupDomain(accountId: String, domainId: String): Future[Option[DomainInformation]] = {
     
-    accountDomainRepository.findApiKey(accountId, domainId).map { x => {
+    domainRepository.findApiKey(accountId, domainId).map { x => {
       
       if (x.isPresent()) {
         val apiKey = x.get._1
