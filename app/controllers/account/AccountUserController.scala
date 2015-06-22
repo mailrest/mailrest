@@ -7,10 +7,8 @@ package controllers.account
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.annotation.implicitNotFound
 import scala.concurrent.Future
-
 import com.mailrest.maildal.model.AccountUser
 import com.mailrest.maildal.model.UserPermission
-
 import play.api.data.Form
 import play.api.data.Forms.email
 import play.api.data.Forms.mapping
@@ -23,6 +21,7 @@ import play.api.libs.json.Json.toJsFieldJsValueWrapper
 import play.api.libs.json.Writes
 import scaldi.Injector
 import services.AccountService
+import services.UserId
 
 class AccountUserController(implicit inj: Injector) extends AbstractAccountController {
 
@@ -76,7 +75,8 @@ class AccountUserController(implicit inj: Injector) extends AbstractAccountContr
 
   def find(accId: String, userId: String) = readAction(accId).async {
     
-    accountService.findAccountUser(accId, userId).map(x => {
+    val id = new UserId(accId, userId)
+    accountService.findAccountUser(id).map(x => {
       
       x match {
         
@@ -106,7 +106,8 @@ class AccountUserController(implicit inj: Injector) extends AbstractAccountContr
 
   def delete(accId: String, userId: String) = readAction(accId).async {
     
-      accountService.removeUser(accId, userId).map(x => Ok)
+      val id = new UserId(accId, userId)
+      accountService.removeUser(id).map(x => Ok)
       
   }
 

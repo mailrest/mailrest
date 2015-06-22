@@ -93,8 +93,8 @@ class MessageController(implicit inj: Injector) extends AbstractDomainController
        val userVariables = formEncoded.fold(Map[String, String]())(parseVariables)
    
        val msg = new NewMessageBean(
-           request.domainInfo.get.accountId,
-           request.domainInfo.get.domainId,
+           request.domainContext.get.id.accountId,
+           request.domainContext.get.id.domainId,
            MessageType.OUTGOING,
            form.deliveryAt.fold(new Date())(f => new Date(f)),
            form.publicId.getOrElse(""),
@@ -117,10 +117,7 @@ class MessageController(implicit inj: Injector) extends AbstractDomainController
   def find(domIdn: String, msgId: String) = domainAction(domIdn).async { 
      implicit request => {
       
-       messageService.find(msgId, 
-           request.domainInfo.get.accountId,
-           request.domainInfo.get.domainId
-           ).map { x => Ok(Json.toJson(x)) }
+       messageService.find(msgId, request.domainContext.get.id).map { x => Ok(Json.toJson(x)) }
        
     }
   }
@@ -128,10 +125,7 @@ class MessageController(implicit inj: Injector) extends AbstractDomainController
   def delete(domIdn: String, msgId: String) = domainAction(domIdn).async { 
      implicit request => {
       
-       messageService.delete(msgId,
-           request.domainInfo.get.accountId,
-           request.domainInfo.get.domainId
-           ).map { x => Ok }
+       messageService.delete(msgId, request.domainContext.get.id).map { x => Ok }
        
     }
   }  

@@ -22,6 +22,7 @@ import scaldi.Injector
 import services.AccountService
 import com.mailrest.maildal.secur.UnsubscribeWebToken
 import com.mailrest.maildal.repository.UnsubscribedRecipientRepository
+import services.DomainId
 
 class UnsubscribeController(implicit inj: Injector) extends Controller with Injectable {
 
@@ -54,7 +55,9 @@ class UnsubscribeController(implicit inj: Injector) extends Controller with Inje
   
   def store(cwt: UnsubscribeWebToken)(implicit reauest: Request[AnyContent]): Future[Result] = {
     
-    unsubscribedRecipientRepository.unsubscribeRecipient(cwt.getDomainId, cwt.getAccountId, cwt.getEmailId).map { x => Ok }
+    val id = new DomainId(cwt.getAccountId, cwt.getDomainId)
+    
+    unsubscribedRecipientRepository.unsubscribeRecipient(id, cwt.getEmailId).map { x => Ok }
     
   }
   

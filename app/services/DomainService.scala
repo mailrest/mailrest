@@ -1,18 +1,19 @@
 package services
 
+import scala.concurrent.ExecutionContext
+import scala.concurrent.Future
+import scala.reflect.runtime.universe
+import com.mailrest.maildal.repository.DomainOwnerRepository
+import com.mailrest.maildal.repository.DomainRef
+import com.mailrest.maildal.repository.DomainRepository
 import com.typesafe.scalalogging.slf4j.LazyLogging
 import scaldi.Injectable
-import com.mailrest.maildal.repository.AccountRepository
-import scala.concurrent.ExecutionContext
 import scaldi.Injector
-import com.mailrest.maildal.repository.DomainOwnerRepository
-import scala.concurrent.Future
-import com.mailrest.maildal.util.DomainId
-import com.mailrest.maildal.repository.DomainRepository
+
 
 trait DomainService {
 
-  def lookupDomain(domain: String): Future[Option[DomainInformation]]
+  def lookupDomain(domain: String): Future[Option[DomainContext]]
   
 }
 
@@ -21,13 +22,13 @@ class DomainServiceImpl(implicit inj: Injector, xc: ExecutionContext = Execution
   val domainRepository = inject [DomainRepository]
   val domainOwnerRepository = inject [DomainOwnerRepository]
   
-  def lookupDomain(accountId: String, domainId: String): Future[Option[DomainInformation]] = {
+  def lookupDomain(id: DomainId): Future[Option[DomainContext]] = {
     
-    domainRepository.findApiKey(accountId, domainId).map { x => {
+    domainRepository.findApiKey(id).map { x => {
       
       if (x.isPresent()) {
         val apiKey = x.get._1
-        Some(new DomainInformation(accountId, domainId, apiKey))
+        Some(new DomainContext(id, apiKey))
       }
       else {
         None
@@ -37,13 +38,14 @@ class DomainServiceImpl(implicit inj: Injector, xc: ExecutionContext = Execution
     
   }
   
-  def lookupDomain(domainId: String): Future[Option[DomainInformation]] = {
+  def lookupDomain(domainId: String): Future[Option[DomainContext]] = {
     
     domainOwnerRepository.findOwner(domainId).flatMap { x=> {
       
       if (x.isPresent()) {
         val accountId = x.get._1
-        lookupDomain(accountId, domainId)
+        val id = new DomainId(accountId, domainId)
+        lookupDomain(id)
       }
       else {
         Future.successful(None)
@@ -57,6 +59,7 @@ class DomainServiceImpl(implicit inj: Injector, xc: ExecutionContext = Execution
   
 }
 
-case class DomainInformation(accountId: String, domainId: String, apiKey: String)
+case class DomainId(accountId: String, domainId: String) extends DomainRef
 
+case class DomainContext(id: DomainId, apiKey: String) 
 

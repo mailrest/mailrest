@@ -13,6 +13,7 @@ import com.mailrest.maildal.model.DefaultEnvironments
 import java.util.Optional
 import com.noorq.casser.support.Fun
 import java.util.Date
+import com.mailrest.maildal.repository.TemplateRef
 
 trait TemplateService {
 
@@ -31,10 +32,10 @@ class TemplateServiceImpl(implicit inj: Injector, xc: ExecutionContext = Executi
   def update(id: TemplateId, template: TemplateBean): Future[Boolean] = {
     
     if (id.env == DefaultEnvironments.PROD.getName) {
-      templateRepository.deployTemplate(id.accountId, id.domainId, id.templateId, template).map { x => x.wasApplied() }
+      templateRepository.deployTemplate(id, template).map { x => x.wasApplied() }
     }
     else {
-      templateRepository.updateTestingTemplate(id.accountId, id.domainId, id.templateId, id.env,
+      templateRepository.updateTestingTemplate(id, id.env,
           template).map { x => x.wasApplied() }
     }
     
@@ -43,7 +44,7 @@ class TemplateServiceImpl(implicit inj: Injector, xc: ExecutionContext = Executi
   def find(id: TemplateId): Future[Option[TemplateInfo]] = {
     
     if (id.env == DefaultEnvironments.PROD.getName) {
-      templateRepository.findDeployedTemplate(id.accountId, id.domainId, id.templateId).map { x => {
+      templateRepository.findDeployedTemplate(id).map { x => {
         
       if (x.isPresent()) {
         Some(new TemplateInfo(x.get._2.getTime, x.get._1))
@@ -56,7 +57,7 @@ class TemplateServiceImpl(implicit inj: Injector, xc: ExecutionContext = Executi
         
     }
     else {
-      templateRepository.findTestingTemplate(id.accountId, id.domainId, id.templateId, id.env).map { x => {
+      templateRepository.findTestingTemplate(id, id.env).map { x => {
         
       if (x.isPresent()) {
         Some(new TemplateInfo(0, x.get._1))
@@ -73,10 +74,10 @@ class TemplateServiceImpl(implicit inj: Injector, xc: ExecutionContext = Executi
   def delete(id: TemplateId, deployedAt: Long): Future[Boolean] = {
     
     if (id.env == DefaultEnvironments.PROD.getName) {
-      templateRepository.rollbackTemplate(id.accountId, id.domainId, id.templateId, new Date(deployedAt)).map { x => x.wasApplied() }
+      templateRepository.rollbackTemplate(id, new Date(deployedAt)).map { x => x.wasApplied() }
     }
     else {
-      templateRepository.deleteTestingTemplate(id.accountId, id.domainId, id.templateId, id.env).map { x => x.wasApplied() }
+      templateRepository.deleteTestingTemplate(id, id.env).map { x => x.wasApplied() }
     }
     
   }
@@ -86,7 +87,7 @@ class TemplateServiceImpl(implicit inj: Injector, xc: ExecutionContext = Executi
 
 case class TemplateInfo(deployedAt: Long, template: Template)
 
-case class TemplateId(accountId: String, domainId: String, templateId: String, env: String)
+case class TemplateId(accountId: String, domainId: String, templateId: String, env: String) extends TemplateRef
 
 case class TemplateBean(
 

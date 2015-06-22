@@ -63,8 +63,8 @@ class TemplateController(implicit inj: Injector) extends AbstractDomainControlle
 
   def makeId(request: DomainRequest[AnyContent], templateId: String, env: String): TemplateId = {
      new TemplateId(
-          request.domainInfo.get.accountId,
-          request.domainInfo.get.domainId,
+          request.domainContext.get.id.accountId,
+          request.domainContext.get.id.domainId,
           templateId,
           env
      ) 

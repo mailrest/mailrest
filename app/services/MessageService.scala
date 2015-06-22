@@ -18,9 +18,9 @@ trait MessageService {
 
   def create(msg: NewMessageBean): Future[String]
   
-  def find(msgId: String, accountId: String, domainId: String): Future[Option[Message]]
+  def find(msgId: String, domainId: DomainId): Future[Option[Message]]
   
-  def delete(msgId: String, accountId: String, domainId: String): Future[Boolean]
+  def delete(msgId: String, domainId: DomainId): Future[Boolean]
   
 }
 
@@ -42,15 +42,15 @@ class MessageServiceImpl(implicit inj: Injector, xc: ExecutionContext = Executio
      messageQueueRepository.enqueueMessage(0, msgId, deliveryAt, 0).map { x => msgId }
   }
   
-  def find(msgId: String, accountId: String, domainId: String): Future[Option[Message]] = {
+  def find(msgId: String, domainId: DomainId): Future[Option[Message]] = {
     
-    messageRepository.findMessage(msgId, accountId, domainId).map(ScalaHelper.asOption)
+    messageRepository.findMessage(msgId, domainId).map(ScalaHelper.asOption)
     
   }
   
-  def delete(msgId: String, accountId: String, domainId: String): Future[Boolean] = {
+  def delete(msgId: String, domainId: DomainId): Future[Boolean] = {
     
-    messageRepository.deleteMessage(msgId, accountId, domainId).map { x => x.wasApplied() }
+    messageRepository.deleteMessage(msgId, domainId).map { x => x.wasApplied() }
     
   }
   

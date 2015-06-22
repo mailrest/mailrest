@@ -22,7 +22,6 @@ import com.mailrest.maildal.model.User
 import utils.ScalaHelper
 import com.mailrest.maildal.model.Account
 import com.mailrest.maildal.model.AccountLog
-import com.mailrest.maildal.util.DomainId
 import com.mailrest.maildal.repository.DomainOwnerRepository
 import com.mailrest.maildal.model.DomainVerificationEvent
 import java.util.Date
@@ -30,6 +29,8 @@ import com.mailrest.maildal.model.DomainVerificationStatus
 import scala.collection.JavaConversions
 import com.mailrest.maildal.repository.DomainRepository
 import com.mailrest.maildal.model.Domain
+import com.mailrest.maildal.repository.UserRef
+import com.mailrest.maildal.repository.DomainRef
 
 trait AccountService {
 
@@ -40,8 +41,8 @@ trait AccountService {
   def findAccountLogs(accId: String, limit: Int): Future[Seq[AccountLog]]
   
   def putAccountUser(accId: String, user: AccountUser): Future[Boolean]
-  def findAccountUser(accId: String, userId: String): Future[Option[AccountUser]]
-  def removeUser(accId: String, userId: String): Future[Boolean]
+  def findAccountUser(id: UserId): Future[Option[AccountUser]]
+  def removeUser(id: UserId): Future[Boolean]
   
   def confirmUser(cwt: CallbackWebToken, newPassword: String): Future[Boolean]
   def updatePassword(cwt: CallbackWebToken, newPassword: String): Future[Boolean]
@@ -96,23 +97,23 @@ class AccountServiceImpl(implicit inj: Injector, xc: ExecutionContext = Executio
   
   def putAccountUser(accId: String, user: AccountUser): Future[Boolean] = {
     
-    accountRepository.putAccountUser(accId, user.userId, user).map { x => x.wasApplied() }
+    accountRepository.putAccountUser(accId, user).map { x => x.wasApplied() }
     
   }
   
-  def findAccountUser(accId: String, userId: String): Future[Option[AccountUser]] = {
+  def findAccountUser(id: UserId): Future[Option[AccountUser]] = {
     
-    accountRepository.findAccountUser(accId, userId).map(ScalaHelper.asOption)
+    accountRepository.findAccountUser(id).map(ScalaHelper.asOption)
     
   }
   
-  def removeUser(accId: String, userId: String): Future[Boolean] = {
+  def removeUser(id: UserId): Future[Boolean] = {
   
     for {
       
-      f1 <- accountRepository.removeAccountUser(accId, userId)
+      f1 <- accountRepository.removeAccountUser(id)
       
-      f2 <- userRepository.dropUser(userId)
+      f2 <- userRepository.dropUser(id.userId)
       
     }
     yield {
@@ -137,7 +138,9 @@ class AccountServiceImpl(implicit inj: Injector, xc: ExecutionContext = Executio
   
   def confirmUser(cwt: CallbackWebToken, newPassword: String): Future[Boolean] = {
     
-    accountRepository.findAccountUser(cwt.getAccountId, cwt.getUserId)
+    val id = new UserId(cwt.getAccountId, cwt.getUserId)
+    
+    accountRepository.findAccountUser(id)
     .flatMap {
       oau => {
   
@@ -162,7 +165,7 @@ class AccountServiceImpl(implicit inj: Injector, xc: ExecutionContext = Executio
       
       f1 <- userRepository.saveNewUser(au.userId(), newPassword, accountId, au.permission()).map { x => x.wasApplied() }
       
-      f2 <- accountRepository.putAccountUser(accountId, au.userId(), user).map { x => x.wasApplied() }
+      f2 <- accountRepository.putAccountUser(accountId, user).map { x => x.wasApplied() }
       
     }
     yield {
@@ -187,28 +190,31 @@ class AccountServiceImpl(implicit inj: Injector, xc: ExecutionContext = Executio
   
   def findDomain(accId: String, domIdn: String): Future[Option[Domain]] = {
     
-    val domainId = DomainId.INSTANCE.fromDomainIdn(domIdn);
-        
-    domainRepository.findDomain(accId, domainId).map(ScalaHelper.asOption)
+    val domainId = com.mailrest.maildal.util.DomainId.INSTANCE.fromDomainIdn(domIdn);
+    val id = new DomainId(accId, domainId)    
+    
+    domainRepository.findDomain(id).map(ScalaHelper.asOption)
     
   }
   
   
   def addDomain(accId: String, domIdn: String): Future[Boolean] = {
     
-    val domainId = DomainId.INSTANCE.fromDomainIdn(domIdn);
+    val domainId = com.mailrest.maildal.util.DomainId.INSTANCE.fromDomainIdn(domIdn);
+    val id = new DomainId(accId, domainId)
     
-    domainRepository.addDomain(accId, domainId, domIdn).map { x => x.wasApplied() }
+    domainRepository.addDomain(id, domIdn).map { x => x.wasApplied() }
     
   }  
   
   def deleteDomain(accId: String, domIdn: String): Future[Boolean] = {
       
-    val domainId = DomainId.INSTANCE.fromDomainIdn(domIdn);
+    val domainId = com.mailrest.maildal.util.DomainId.INSTANCE.fromDomainIdn(domIdn);
+    val id = new DomainId(accId, domainId)
     
-    domainRepository.dropDomain(accId, domainId).map { x => x.wasApplied() }      
+    domainRepository.dropDomain(id).map { x => x.wasApplied() }      
     
-    domainRepository.getVerificationEvents(accId, domainId).map(ScalaHelper.asOption).flatMap { x => {
+    domainRepository.getVerificationEvents(id).map(ScalaHelper.asOption).flatMap { x => {
       
       x match {
         
@@ -244,18 +250,20 @@ class AccountServiceImpl(implicit inj: Injector, xc: ExecutionContext = Executio
   def deleteDomainOwnership(accId: String, domainId: String, verifiedAt: Seq[Date]): Future[Boolean] = {
     
      val list = JavaConversions.seqAsJavaList(verifiedAt)
-    
-     domainOwnerRepository.dropDomainVerifications(accId, domainId, list).map { x => x.wasApplied() }    
+     val id = new DomainId(accId, domainId)
+     domainOwnerRepository.dropDomainVerifications(id, list).map { x => x.wasApplied() }    
   }
   
   def deleteAccountDomain(accId: String, domainId: String): Future[Boolean] = {
     
-     domainRepository.dropDomain(accId, domainId).map { x => x.wasApplied() }    
+     domainRepository.dropDomain(new DomainId(accId, domainId)).map { x => x.wasApplied() }    
   }
   
 }
 
+case class UserId(accountId: String, userId: String) extends UserRef
+
+case class AccountContext(id: UserId, userPermission: UserPermission)
+
 case class AccountUserBean(val userId: String, val email: String, val firstName: String, val lastName: String, val permission: UserPermission, val confirmed: Boolean) extends AccountUser
-
-
 

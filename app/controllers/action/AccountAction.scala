@@ -19,8 +19,11 @@ import com.mailrest.maildal.model.UserPermission
 import com.mailrest.maildal.secur.TokenManager
 import views.html.helper.input
 import com.mailrest.maildal.secur.AccountWebToken
+import com.mailrest.maildal.repository.UserRef
+import services.AccountContext
+import services.UserId
 
-class AccountRequest[A](val accountInfo: Option[AccountInformation], request: Request[A]) extends WrappedRequest[A](request)
+class AccountRequest[A](val accountContext: Option[AccountContext], request: Request[A]) extends WrappedRequest[A](request)
 
 class AccountAction(implicit inj: Injector) extends 
     ActionBuilder[AccountRequest] 
@@ -29,10 +32,11 @@ class AccountAction(implicit inj: Injector) extends
   
     val accountTokenManager = inject [TokenManager[AccountWebToken]]
   
-    def decodeJwm(jwt: String): Option[AccountInformation] = {
+    def decodeJwm(jwt: String): Option[AccountContext] = {
       try {
         val awt = accountTokenManager.fromJwt(jwt);
-        Some(new AccountInformation(awt.getAccountId, awt.getUserId, awt.getPermission))
+        val id = new UserId(awt.getAccountId, awt.getUserId)
+        Some(new AccountContext(id, awt.getPermission))
       }
       catch { case e: Exception => None }
     }
@@ -47,7 +51,7 @@ class AccountAction(implicit inj: Injector) extends
 class AccountReadAction(accId: String) extends ActionFilter[AccountRequest] {
   
   def filter[A](input: AccountRequest[A]) = Future.successful {
-    input.accountInfo.filter { x => x.accountId == accId }
+    input.accountContext.filter { x => x.id.accountId == accId }
     match {
       case Some(s) => None
       case None => Some(Results.Forbidden)
@@ -59,7 +63,7 @@ class AccountReadAction(accId: String) extends ActionFilter[AccountRequest] {
 class AccountWriteAction(accId: String) extends ActionFilter[AccountRequest] {
   
   def filter[A](input: AccountRequest[A]) = Future.successful {
-    input.accountInfo.filter { x => x.accountId == accId }
+    input.accountContext.filter { x => x.id.accountId == accId }
     .filter(x => x.userPermission != UserPermission.READ_ONLY)
     match {
       case Some(s) => None
@@ -72,7 +76,7 @@ class AccountWriteAction(accId: String) extends ActionFilter[AccountRequest] {
 class AccountAdminAction(accId: String) extends ActionFilter[AccountRequest] {
   
   def filter[A](input: AccountRequest[A]) = Future.successful {
-    input.accountInfo.filter { x => x.accountId == accId }
+    input.accountContext.filter { x => x.id.accountId == accId }
     .filter(x => x.userPermission == UserPermission.ADMIN)
     match {
       case Some(s) => None
@@ -81,6 +85,4 @@ class AccountAdminAction(accId: String) extends ActionFilter[AccountRequest] {
   }
   
 }
-
-case class AccountInformation(accountId: String, userId: String, userPermission: UserPermission)
 
