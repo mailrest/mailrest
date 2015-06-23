@@ -44,29 +44,10 @@ class TemplateServiceImpl(implicit inj: Injector, xc: ExecutionContext = Executi
   def find(id: TemplateId): Future[Option[TemplateInfo]] = {
     
     if (id.env == DefaultEnvironments.PROD.getName) {
-      templateRepository.findDeployedTemplate(id).map { x => {
-        
-      if (x.isPresent()) {
-        Some(new TemplateInfo(x.get._2.getTime, x.get._1))
-      }
-      else {
-        None
-      }
-        
-      } }
-        
+      templateRepository.findDeployedTemplate(id).map(x => x.map(y => new TemplateInfo(y._2.getTime, y._1)))
     }
     else {
-      templateRepository.findTestingTemplate(id, id.env).map { x => {
-        
-      if (x.isPresent()) {
-        Some(new TemplateInfo(0, x.get._1))
-      }
-      else {
-        None
-      }
-        
-      } }
+      templateRepository.findTestingTemplate(id, id.env).map(x => x.map(y => new TemplateInfo(0, y._1)))
     }
     
   }

@@ -79,7 +79,7 @@ class AccountServiceImpl(implicit inj: Injector, xc: ExecutionContext = Executio
   
   def findAccount(accId: String): Future[Option[Account]] = {
     
-    accountRepository.findAccount(accId).map(ScalaHelper.asOption)
+    accountRepository.findAccount(accId)
     
   }
   
@@ -91,7 +91,7 @@ class AccountServiceImpl(implicit inj: Injector, xc: ExecutionContext = Executio
   
   def findAccountLogs(accId: String, limit: Int): Future[Seq[AccountLog]] = {
     
-    accountLogRepository.getAccountLogs(accId, limit).map(ScalaHelper.toSeq)
+    accountLogRepository.getAccountLogs(accId, limit).map(x => x.toBuffer)
     
   }
   
@@ -103,7 +103,7 @@ class AccountServiceImpl(implicit inj: Injector, xc: ExecutionContext = Executio
   
   def findAccountUser(id: UserId): Future[Option[AccountUser]] = {
     
-    accountRepository.findAccountUser(id).map(ScalaHelper.asOption)
+    accountRepository.findAccountUser(id)
     
   }
   
@@ -144,7 +144,7 @@ class AccountServiceImpl(implicit inj: Injector, xc: ExecutionContext = Executio
     .flatMap {
       oau => {
   
-          if (oau.isPresent()) {
+          if (oau.isDefined) {
             saveConfirmedUser(cwt.getAccountId, oau.get, newPassword)
           }
           else {
@@ -183,7 +183,7 @@ class AccountServiceImpl(implicit inj: Injector, xc: ExecutionContext = Executio
     
   def findDomains(accId: String): Future[Seq[Domain]] = {
     
-    domainRepository.findDomains(accId).map(ScalaHelper.toSeq)
+    domainRepository.findDomains(accId).map(x => x.toBuffer)
     
   }
   
@@ -193,7 +193,7 @@ class AccountServiceImpl(implicit inj: Injector, xc: ExecutionContext = Executio
     val domainId = com.mailrest.maildal.util.DomainId.INSTANCE.fromDomainIdn(domIdn);
     val id = new DomainId(accId, domainId)    
     
-    domainRepository.findDomain(id).map(ScalaHelper.asOption)
+    domainRepository.findDomain(id)
     
   }
   
@@ -214,7 +214,7 @@ class AccountServiceImpl(implicit inj: Injector, xc: ExecutionContext = Executio
     
     domainRepository.dropDomain(id).map { x => x.wasApplied() }      
     
-    domainRepository.getVerificationEvents(id).map(ScalaHelper.asOption).flatMap { x => {
+    domainRepository.getVerificationEvents(id).flatMap { x => {
       
       x match {
         

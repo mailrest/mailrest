@@ -32,7 +32,7 @@ class TokenServiceImpl (implicit inj: Injector, xc: ExecutionContext = Execution
 
   def findUser(userId: String): Future[Option[User]] = {
     
-    userRepository.findUser(userId).map(ScalaHelper.asOption)
+    userRepository.findUser(userId)
     
   }
   

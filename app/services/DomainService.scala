@@ -23,37 +23,26 @@ class DomainServiceImpl(implicit inj: Injector, xc: ExecutionContext = Execution
   val domainOwnerRepository = inject [DomainOwnerRepository]
   
   def lookupDomain(id: DomainId): Future[Option[DomainContext]] = {
-    
-    domainRepository.findApiKey(id).map { x => {
-      
-      if (x.isPresent()) {
-        val apiKey = x.get._1
-        Some(new DomainContext(id, apiKey))
-      }
-      else {
-        None
-      }
-      
-    }}
-    
+    domainRepository.findApiKey(id).map(x => x.map(y => new DomainContext(id, y._1)))
   }
   
   def lookupDomain(domainId: String): Future[Option[DomainContext]] = {
     
     domainOwnerRepository.findOwner(domainId).flatMap { x=> {
       
-      if (x.isPresent()) {
-        val accountId = x.get._1
-        val id = new DomainId(accountId, domainId)
-        lookupDomain(id)
+      x match {
+        
+        case Some(y) => {
+          val accountId = y._1
+          val id = new DomainId(accountId, domainId)
+          lookupDomain(id)          
+        }
+        
+        case None => Future.successful(None)
+        
       }
-      else {
-        Future.successful(None)
-      }
-      
-    }}
 
-
+    } }
   }
   
   

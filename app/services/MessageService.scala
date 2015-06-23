@@ -44,7 +44,7 @@ class MessageServiceImpl(implicit inj: Injector, xc: ExecutionContext = Executio
   
   def find(msgId: String, domainId: DomainId): Future[Option[Message]] = {
     
-    messageRepository.findMessage(msgId, domainId).map(ScalaHelper.asOption)
+    messageRepository.findMessage(msgId, domainId)
     
   }
   
