@@ -159,7 +159,7 @@ class AccountServiceImpl(implicit inj: Injector, xc: ExecutionContext = Executio
   
   def saveConfirmedUser(accountId: String, au: AccountUser, newPassword: String): Future[Boolean] = {
     
-    val user = new AccountUserBean(au.userId(), au.email(), au.firstName(), au.lastName(), au.permission(), true)
+    val user = new AccountUserBean(au.userId(), au.email(), au.team(), au.firstName(), au.lastName(), au.permission(), true)
     
     for {
       
@@ -265,5 +265,5 @@ case class UserId(accountId: String, userId: String) extends UserRef
 
 case class AccountContext(id: UserId, userPermission: UserPermission)
 
-case class AccountUserBean(val userId: String, val email: String, val firstName: String, val lastName: String, val permission: UserPermission, val confirmed: Boolean) extends AccountUser
+case class AccountUserBean(userId: String, email: String, team: String, firstName: String, lastName: String, permission: UserPermission, confirmed: Boolean) extends AccountUser
 

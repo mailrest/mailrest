@@ -44,6 +44,7 @@ class AccountUserController(implicit inj: Injector) extends AbstractAccountContr
     mapping (
       "userId" -> nonEmptyText,
       "email" -> email,
+      "team" -> optional(text),
       "firstName" -> optional(text), 
       "lastName" -> optional(text),
       "permission" -> nonEmptyText
@@ -53,6 +54,7 @@ class AccountUserController(implicit inj: Injector) extends AbstractAccountContr
   val updateAccountUserForm = Form(
     mapping (
       "email" -> email,
+      "team" -> optional(text),
       "firstName" -> optional(text), 
       "lastName" -> optional(text),
       "permission" -> nonEmptyText
@@ -65,7 +67,7 @@ class AccountUserController(implicit inj: Injector) extends AbstractAccountContr
     
        val form = newAccountUserForm.bindFromRequest.get
             
-       val accountUser = new AccountUserBean(form.userId, form.email, 
+       val accountUser = new AccountUserBean(form.userId, form.email, form.team.getOrElse(""),
            form.firstName.getOrElse(""), form.lastName.getOrElse(""),
            UserPermission.valueOf(form.permission))      
       
@@ -95,7 +97,7 @@ class AccountUserController(implicit inj: Injector) extends AbstractAccountContr
     
        val form = updateAccountUserForm.bindFromRequest.get
       
-       val accountUser = new AccountUserBean(userId, form.email, 
+       val accountUser = new AccountUserBean(userId, form.email, form.team.getOrElse(""),
            form.firstName.getOrElse(""), form.lastName.getOrElse(""),
            UserPermission.valueOf(form.permission)) 
        
@@ -113,17 +115,17 @@ class AccountUserController(implicit inj: Injector) extends AbstractAccountContr
 
 }
 
-case class AccountUserBean(userId: String, email: String, 
+case class AccountUserBean(userId: String, email: String, team:String,
     firstName: String, lastName: String, 
     permission: UserPermission, confirmed: Boolean = false) extends AccountUser
 
 
-case class NewAccountUserForm(userId: String, email: String, 
+case class NewAccountUserForm(userId: String, email: String, team: Option[String],
     firstName: Option[String], lastName: Option[String],
     permission: String) 
 
     
-case class UpdateAccountUserForm(email: String, 
+case class UpdateAccountUserForm(email: String, team: Option[String],
     firstName: Option[String], lastName: Option[String],
     permission: String)     
     

@@ -72,7 +72,7 @@ case class TemplateId(accountId: String, domainId: String, templateId: String, e
 
 case class TemplateBean(
 
-name: String, description: String, engine: TemplateEngine, 
+displayName: String, description: String, engine: TemplateEngine, 
 fromRecipients: String, bccRecipients: String,
 subject: String, textBody: String, htmlBody: String
 
