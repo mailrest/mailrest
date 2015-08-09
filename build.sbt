@@ -1,4 +1,4 @@
-name := """restapi"""
+name := """mailrest"""
 
 version := "1.0-SNAPSHOT"
 
