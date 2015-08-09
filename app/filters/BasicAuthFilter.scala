@@ -12,7 +12,7 @@ import com.mailrest.maildal.util.Base64
 object BasicAuthFilter extends Filter with LazyLogging {
   
     private lazy val unauthResult = Results.Unauthorized.withHeaders(("WWW-Authenticate", 
-    "Basic realm=\"MailREST API\""))
+    "Basic realm=\"MailRest API\""))
     
     private lazy val passwordRequired = false
     private lazy val username = "someUsername"
