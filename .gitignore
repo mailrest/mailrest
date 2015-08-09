@@ -16,3 +16,12 @@ dist
 /bin/
 /.DS_Store
 /.cache
+*.class
+*.log
+.lib/
+lib_managed/
+src_managed/
+project/boot/
+project/plugins/project/
+.scala_dependencies
+.worksheet
