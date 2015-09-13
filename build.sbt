@@ -13,6 +13,7 @@ libraryDependencies ++= Seq(
   "org.scaldi" %% "scaldi-play" % "0.5.7",
   "com.typesafe" % "config" % "1.3.0",
   "com.typesafe.scala-logging" % "scala-logging-slf4j_2.11" % "2.1.2",
+  specs2 % Test,
   cache,
   ws
 )
