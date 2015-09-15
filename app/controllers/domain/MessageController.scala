@@ -48,7 +48,7 @@ class MessageController(implicit inj: Injector) extends AbstractDomainController
               "accountId" -> m.accountId,
               "domainId" -> m.domainId,
               "publicId" -> m.publicId,
-              "from" -> m.fromRecipients,
+              "from" -> m.fromRecipient,
               "to" -> m.toRecipients,
               "cc" -> m.ccRecipients,
               "bcc" -> m.bccRecipients,
@@ -97,7 +97,7 @@ class MessageController(implicit inj: Injector) extends AbstractDomainController
            request.domainContext.get.id.domainId,
            MessageType.OUTGOING,
            form.deliveryAt.fold(new Date())(f => new Date(f)),
-           form.publicId.getOrElse(""),
+           form.collisionId.getOrElse(""),
            form.from.getOrElse(""),
            form.to,
            form.cc.getOrElse(""),
@@ -135,7 +135,7 @@ class MessageController(implicit inj: Injector) extends AbstractDomainController
 case class UserVariableForm(name: String, value: String)
 
 case class NewMessageForm(
-  deliveryAt: Option[Long], publicId: Option[String],    
+  deliveryAt: Option[Long], collisionId: Option[String],    
   from: Option[String], to: String, cc: Option[String], bcc: Option[String],    
   templateId: Option[String],   
   subject: Option[String], textBody: Option[String], htmlBody: Option[String]
