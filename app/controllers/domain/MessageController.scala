@@ -1,6 +1,17 @@
 /*
  *      Copyright (C) 2015 Noorq, Inc.
- *      All rights reserved.
+ *
+ *   Licensed under the Apache License, Version 2.0 (the "License");
+ *   you may not use this file except in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing, software
+ *   distributed under the License is distributed on an "AS IS" BASIS,
+ *   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *   See the License for the specific language governing permissions and
+ *   limitations under the License.
  */
 package controllers.domain
 
@@ -24,6 +35,7 @@ import utils.ScalaHelper
 import java.util.Collections
 import scala.collection.JavaConverters
 import scala.collection.JavaConversions
+import com.mailrest.maildal.model.DefaultEnvironments
 
 class MessageController(implicit inj: Injector) extends AbstractDomainController {
   
@@ -69,6 +81,7 @@ class MessageController(implicit inj: Injector) extends AbstractDomainController
       "to" -> nonEmptyText,
       "cc" -> optional(text),
       "bcc" -> optional(text),    
+      "env" -> optional(text), 
       "templateId" -> optional(text),   
       "subject" -> optional(text), 
       "textBody" -> optional(text), 
@@ -97,16 +110,17 @@ class MessageController(implicit inj: Injector) extends AbstractDomainController
            request.domainContext.get.id.domainId,
            MessageType.OUTGOING,
            form.deliveryAt.fold(new Date())(f => new Date(f)),
-           form.collisionId.getOrElse(""),
-           form.from.getOrElse(""),
+           form.collisionId.getOrElse(null),
+           form.from.getOrElse(null),
            form.to,
-           form.cc.getOrElse(""),
-           form.bcc.getOrElse(""),
-           form.templateId.getOrElse(""),
+           form.cc.getOrElse(null),
+           form.bcc.getOrElse(null),
+           form.env.getOrElse(DefaultEnvironments.TEST.getName),
+           form.templateId.getOrElse(null),
            JavaConversions.mapAsJavaMap(userVariables),
            form.subject.getOrElse(""),
            form.textBody.getOrElse(""),
-           form.htmlBody.getOrElse("")
+           form.htmlBody.getOrElse(null)
            )
        
       messageService.create(msg).map { x => Ok(x) } 
@@ -137,7 +151,7 @@ case class UserVariableForm(name: String, value: String)
 case class NewMessageForm(
   deliveryAt: Option[Long], collisionId: Option[String],    
   from: Option[String], to: String, cc: Option[String], bcc: Option[String],    
-  templateId: Option[String],   
+  env: Option[String], templateId: Option[String],   
   subject: Option[String], textBody: Option[String], htmlBody: Option[String]
 ) 
 
