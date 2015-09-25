@@ -21,7 +21,7 @@ import scala.concurrent.ExecutionContext
 import scaldi.Injector
 import com.mailrest.maildal.repository.TemplateRepository
 import com.mailrest.maildal.model.Template
-import com.mailrest.maildal.model.TemplateEngine
+import com.mailrest.maildal.model.TemplateEngineType
 import scala.concurrent.Future
 import utils.ScalaHelper
 import com.mailrest.maildal.model.DefaultEnvironments
@@ -87,7 +87,7 @@ case class TemplateId(accountId: String, domainId: String, templateId: String, e
 
 case class TemplateBean(
 
-displayName: String, description: String, engine: TemplateEngine, 
+displayName: String, description: String, engine: TemplateEngineType, 
 fromRecipients: String, bccRecipients: String,
 subject: String, textBody: String, htmlBody: String
 

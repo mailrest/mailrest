@@ -36,12 +36,17 @@ import java.util.Collections
 import scala.collection.JavaConverters
 import scala.collection.JavaConversions
 import com.mailrest.maildal.model.DefaultEnvironments
+import play.api.mvc.Result
+import controllers.action.DomainRequest
+import play.api.mvc.AnyContent
+import com.mailrest.maildal.model.MessageRecipient
+import com.mailrest.maildal.support.Recipients
 
 class MessageController(implicit inj: Injector) extends AbstractDomainController {
   
   val messageService = inject [MessageService]
 
-    implicit val userVariableWrites = new Writes[java.util.Map.Entry[String, String]] {
+  implicit val userVariableWrites = new Writes[java.util.Map.Entry[String, String]] {
       override def writes(e: java.util.Map.Entry[String, String]): JsValue = {
           Json.obj(
               "name" -> e.getKey,
@@ -49,7 +54,23 @@ class MessageController(implicit inj: Injector) extends AbstractDomainController
           )
       }
   }  
-  
+
+   implicit val recipientWrites = new Writes[MessageRecipient] {
+      override def writes(e: MessageRecipient): JsValue = {
+          if (e.recipientName() != null) {
+            Json.obj(
+                "name" -> e.recipientName(),
+                "email" -> e.recipientEmail()
+            )
+          }
+          else {
+            Json.obj(
+                "email" -> e.recipientEmail()
+            )            
+          }
+      }
+  }  
+    
   implicit val messageWrites = new Writes[Message] {
       override def writes(m: Message): JsValue = {
           Json.obj(
@@ -61,11 +82,10 @@ class MessageController(implicit inj: Injector) extends AbstractDomainController
               "domainId" -> m.domainId,
               "collisionId" -> m.collisionId,
               "from" -> m.fromRecipient,
-              "to" -> m.toRecipients,
-              "cc" -> m.ccRecipients,
-              "bcc" -> m.bccRecipients,
-              "templateId" -> m.templateId,
-              "userVariables" -> Json.arr(ScalaHelper.asSeq(m.userVariables.entrySet())),
+              "to" -> Json.arr(ScalaHelper.asSeq(m.toRecipients)),
+              "cc" -> Json.arr(ScalaHelper.asSeq(m.ccRecipients)),
+              "bcc" -> Json.arr(ScalaHelper.asSeq(m.bccRecipients)),
+              //"userVariables" -> Json.arr(ScalaHelper.asSeq(m.userVariables.entrySet())),
               "subject" -> m.subject,
               "textBody" -> m.textBody,
               "htmlBody" -> m.htmlBody
@@ -102,30 +122,48 @@ class MessageController(implicit inj: Injector) extends AbstractDomainController
       
        val form = newMessageForm.bindFromRequest.get  
 
-       val formEncoded = request.body.asFormUrlEncoded
-       val userVariables = formEncoded.fold(Map[String, String]())(parseVariables)
-   
-       val msg = new NewMessageBean(
-           request.domainContext.get.id.accountId,
-           request.domainContext.get.id.domainId,
-           MessageType.OUTGOING,
-           form.deliveryAt.fold(new Date())(f => new Date(f)),
-           form.collisionId.getOrElse(null),
-           form.from.getOrElse(null),
-           form.to,
-           form.cc.getOrElse(null),
-           form.bcc.getOrElse(null),
-           form.env.getOrElse(DefaultEnvironments.TEST.getName),
-           form.templateId.getOrElse(null),
-           JavaConversions.mapAsJavaMap(userVariables),
-           form.subject.getOrElse(""),
-           form.textBody.getOrElse(""),
-           form.htmlBody.getOrElse(null)
-           )
-       
-      messageService.create(msg).map { x => Ok(x) } 
+       if (form.templateId.isDefined) {
+         val formEncoded = request.body.asFormUrlEncoded
+         val userVariables = formEncoded.fold(Map[String, String]())(parseVariables)
+         
+         // TODO: request template, replace fields in message
+
+         sendSimpleMessage(form)
+       }
+       else {
+         sendSimpleMessage(form)
+       }
        
     }
+  }
+  
+  def correctDate(timestamp: Option[Long]): Date = {
+    if (timestamp.isDefined) {
+      new Date(Math.max(timestamp.get, java.lang.System.currentTimeMillis()))
+    }
+    else {
+      new Date()
+    }
+  }
+  
+  def sendSimpleMessage(form: NewMessageForm)(implicit request: DomainRequest[AnyContent]) : Future[Result] = {
+    
+     val msg = new NewMessageBean(
+     request.domainContext.get.id.accountId,
+     request.domainContext.get.id.domainId,
+     MessageType.OUTGOING,
+     correctDate(form.deliveryAt),
+     form.collisionId.getOrElse(null),     
+     Recipients.INSTANCE.parseSingle(form.from.getOrElse("")),
+     Recipients.INSTANCE.parseMulti(form.to, false),
+     Recipients.INSTANCE.parseMulti(form.cc.getOrElse(null), false),
+     Recipients.INSTANCE.parseMulti(form.bcc.getOrElse(null), false),
+     form.subject.getOrElse(""),
+     form.textBody.getOrElse(""),
+     form.htmlBody.getOrElse(null)
+     )
+     
+    messageService.create(msg).map { x => Ok(x) } 
   }
   
   def find(domIdn: String, msgId: String) = domainAction(domIdn).async { 

@@ -29,6 +29,7 @@ import services.MessageService
 import services.TemplateServiceImpl
 import services.TemplateService
 import services.MessageServiceImpl
+import org.fusesource.scalate.TemplateEngine
 
 class ServiceModule extends Module {
   
@@ -37,5 +38,7 @@ class ServiceModule extends Module {
     bind [TemplateService] to new TemplateServiceImpl
     bind [MessageService] to new MessageServiceImpl
         
+    bind [TemplateEngine] to new TemplateEngine
+    
     bind [ExecutionContext] to ExecutionContext.global
 }

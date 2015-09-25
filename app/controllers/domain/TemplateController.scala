@@ -17,7 +17,7 @@ package controllers.domain
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import com.mailrest.maildal.model.Template
-import com.mailrest.maildal.model.TemplateEngine
+import com.mailrest.maildal.model.TemplateEngineType
 import controllers.action.DomainRequest
 import play.api.data.Form
 import play.api.data.Forms._
@@ -86,7 +86,7 @@ class TemplateController(implicit inj: Injector) extends AbstractDomainControlle
      new TemplateBean(
           form.name.getOrElse(""),
           form.description.getOrElse(""),
-          TemplateEngine.valueOf(form.engine),
+          TemplateEngineType.valueOf(form.engine),
           form.fromRecipients.getOrElse(""),
           form.bccRecipients.getOrElse(""),
           form.subject.getOrElse(""),

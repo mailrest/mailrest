@@ -32,7 +32,13 @@ object ScalaHelper {
     }
     
   }
-  
+
+  def asList[X](col: Collection[X]): List[X] = {
+
+    scala.collection.JavaConversions.asScalaIterator(col.iterator()).toList
+    
+  }
+    
   def asSeq[X](col: Collection[X]): Seq[X] = {
     
     scala.collection.JavaConversions.asScalaIterator(col.iterator()).toSeq

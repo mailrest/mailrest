@@ -28,6 +28,7 @@ import com.mailrest.maildal.model.MessageType
 import scala.concurrent.Future
 import com.mailrest.maildal.model.Message
 import utils.ScalaHelper
+import com.mailrest.maildal.model.MessageRecipient
 
 trait MessageService {
 
@@ -47,14 +48,28 @@ class MessageServiceImpl(implicit inj: Injector, xc: ExecutionContext = Executio
 
   def create(msg: NewMessageBean): Future[String] = {
     
-    messageRepository.createMessage(msg)
-     .map(x => { x._2 })
-     .flatMap(msgId => enqueue(msgId, msg.deliveryAt))
+      val recipients = collectRecipients(msg);
+      
+      messageRepository.createMessage(msg)
+       .map(x => { x._2 })
+       .flatMap{ msgId => 
+         
+         val fList = recipients.map(rec => enqueue(msgId, msg.deliveryAt, rec)) 
+         
+         val f = Future sequence fList
+         
+         f.map { x => x.head }
+         
+       }
     
   }
   
-  def enqueue(msgId: String, deliveryAt: Date): Future[String] = {
-     messageQueueRepository.enqueueMessage(0, msgId, deliveryAt, 0).map { x => msgId }
+  def enqueue(msgId: String, deliveryAt: Date, rec: MessageRecipient): Future[String] = {
+     messageQueueRepository.enqueueMessage(0, msgId, deliveryAt, 0, rec).map { x => msgId }
+  }
+  
+  def collectRecipients(msg: NewMessageBean) : List[MessageRecipient] = {
+    ScalaHelper.asList(msg.to) ::: ScalaHelper.asList(msg.cc) ::: ScalaHelper.asList(msg.bcc) 
   }
   
   def find(msgId: String, domainId: DomainId): Future[Option[Message]] = {
@@ -75,9 +90,8 @@ case class NewMessageBean(
   accountId: String, domainId: String,  
   messageType: MessageType,
   deliveryAt: Date, collisionId: String,    
-  from: String, to: String, cc: String, bcc: String,  
-  env: String, templateId: String, 
-  userVariables: java.util.Map[String, String],    
+  from: MessageRecipient, to: java.util.List[MessageRecipient], 
+  cc: java.util.List[MessageRecipient], bcc: java.util.List[MessageRecipient],  
   subject: String, textBody: String, htmlBody: String
 ) extends NewMessage
 

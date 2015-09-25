@@ -15,6 +15,7 @@ libraryDependencies ++= Seq(
   "com.typesafe.scala-logging" % "scala-logging-slf4j_2.11" % "2.1.2",
   "org.scalatra.scalate" % "scalate-core_2.11" % "1.7.1",
   specs2 % Test,
+  "org.scalatest" % "scalatest_2.11" % "2.2.4" % "test",
   cache,
   ws
 )
