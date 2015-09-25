@@ -47,7 +47,7 @@ class MessageController(implicit inj: Injector) extends AbstractDomainController
               "messageType" -> m.messageType.name,
               "accountId" -> m.accountId,
               "domainId" -> m.domainId,
-              "publicId" -> m.publicId,
+              "collisionId" -> m.collisionId,
               "from" -> m.fromRecipient,
               "to" -> m.toRecipients,
               "cc" -> m.ccRecipients,
@@ -64,7 +64,7 @@ class MessageController(implicit inj: Injector) extends AbstractDomainController
   val newMessageForm = Form(
     mapping(
       "deliveryAt" -> optional(longNumber),
-      "publicId" -> optional(text),    
+      "collisionId" -> optional(text),    
       "from" -> optional(text), 
       "to" -> nonEmptyText,
       "cc" -> optional(text),
